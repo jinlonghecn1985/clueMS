@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.ReplyMapper">
+
+<!-- Result Map-->
+<resultMap id="ReplyResultMap" type="com.hnjing.core.model.entity.Reply">
+	<id column="id" property="id"/>
+	<result column="b_id" property="bId"/>
+	<result column="content" property="content"/>
+	<result column="employee" property="employee"/>
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="created_man" property="createdMan"/>
+</resultMap>
+
+<sql id="sql_reply_item">
+	id, b_id, content, employee, gmt_created, created_man
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_reply_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="reply.id != null">AND id = #{reply.id} </if>
+		<if test="reply.bId != null">AND b_id = #{reply.bId} </if>
+		<if test="reply.content != null">AND content like concat(#{reply.content}, '%') </if>
+		<if test="reply.employee != null">AND employee like concat(#{reply.employee}, '%') </if>
+		<if test="reply.createdMan != null">AND created_man like concat(#{reply.createdMan}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 销售回复 -->
+<insert id="addReply" parameterType="com.hnjing.core.model.entity.Reply" >
+	<selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_reply 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="id != null"> id,</if>
+		<if test="bId != null"> b_id,</if>
+		<if test="content != null"> content,</if>
+		<if test="employee != null"> employee,</if>
+		gmt_created,
+		<if test="createdMan != null"> created_man,</if>
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="id != null"> #{id},</if>
+		<if test="bId != null"> #{bId},</if>
+		<if test="content != null"> #{content},</if>
+		<if test="employee != null"> #{employee},</if>
+		now(),
+		<if test="createdMan != null"> #{createdMan},</if>
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 销售回复 -->  
+<update id="modifyReply" parameterType="com.hnjing.core.model.entity.Reply" >
+  	UPDATE tb_reply SET
+	<trim suffixOverrides=",">
+		<if test="bId != null"> b_id = #{bId},</if>
+		<if test="content != null"> content = #{content},</if>
+		<if test="employee != null"> employee = #{employee},</if>
+		<if test="createdMan != null"> created_man = #{createdMan},</if>
+	</trim>
+	WHERE id = #{id}
+</update>
+ 
+<!-- 删除 销售回复 -->
+<delete id="dropReplyById" parameterType="java.lang.Integer">
+	DELETE FROM tb_reply WHERE id = #{id}
+</delete> 
+
+<!-- 根据标识查询 销售回复 -->
+<select id="queryReplyById"  resultMap="ReplyResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_reply_item"/>
+	FROM tb_reply WHERE id = #{id}
+</select>
+
+<!-- 根据属性查询销售回复 -->
+<select id="queryReplyByProperty"  resultMap="ReplyResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_reply_item"/>
+	FROM tb_reply 
+	<where>
+		<include refid="sql_reply_query_nowhere"/>
+	</where>
+</select>
+
+<!-- 根据销售回复属性与分页信息分页查询销售回复信息 -->
+<select id="queryReplyForPage"  resultMap="ReplyResultMap" > 
+	SELECT 
+	<include refid="sql_reply_item"/>
+	FROM tb_reply 
+	<where>
+		<include refid="sql_reply_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.BusinessInfoMapper">
+
+<!-- Result Map-->
+<resultMap id="BusinessInfoResultMap" type="com.hnjing.core.model.entity.BusinessInfo">
+	<id column="b_id" property="bId"/>
+	<result column="clue_id" property="clueId"/>
+	<result column="erp_id" property="erpId"/>
+	<result column="valid_info" property="validInfo"/>
+	<result column="c_customer" property="cCustomer"/>
+	<result column="c_phone" property="cPhone"/>
+	<result column="city" property="city"/>
+	<result column="has_in" property="hasIn"/>
+	<result column="is_new" property="isNew"/>
+	<result column="identifier" property="identifier"/>
+	<result column="employee" property="employee"/>
+	<result column="department" property="department"/>
+	<result column="c_goods" property="cGoods"/>
+	<result column="business" property="business"/>
+	<result column="sj_status" property="sjStatus"/>
+	<result column="industry_jw" property="industryJw"/>
+	<result column="industry1" property="industry1"/>
+	<result column="industry2" property="industry2"/>
+	<result column="bnote" property="bnote"/>
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="gmt_created_user" property="gmtCreatedUser"/>
+	<result column="gmt_modify" property="gmtModify"/>
+	<result column="gmt_modify_user" property="gmtModifyUser"/>
+</resultMap>
+
+<resultMap id="BusinessInfoBoResultMap" type="com.hnjing.core.service.impl.bo.BusinessInfoBo" extends="BusinessInfoResultMap">
+	<result column="c_source" property="cSource"/>
+	<result column="c_message" property="cMessage"/>
+	<result column="from_department" property="fromDepartment"/>
+	<result column="from_employee" property="fromEmployee"/>
+	<result column="c_type" property="cType"/>
+	<result column="c_reason" property="cReason"/>
+	<result column="c_note" property="cNote"/>
+	<result column="c_man" property="cMan"/>
+	
+</resultMap>
+
+
+
+
+<sql id="sql_businessInfo_item">
+	b_id, clue_id, erp_id, valid_info, c_customer, c_phone, city, has_in, is_new, identifier, employee, department, c_goods, business, sj_status, industry_jw, industry1, industry2, bnote, gmt_created, gmt_created_user, gmt_modify, gmt_modify_user
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_businessInfo_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="businessInfo.bId != null">AND b_id = #{businessInfo.bId} </if>
+		<if test="businessInfo.clueId != null">AND clue_id like concat(#{businessInfo.clueId}, '%') </if>
+		<if test="businessInfo.erpId != null">AND erp_id like concat(#{businessInfo.erpId}, '%') </if>
+		<if test="businessInfo.validInfo != null">AND valid_info like concat(#{businessInfo.validInfo}, '%') </if>
+		<if test="businessInfo.cCustomer != null">AND (c_customer like concat('%', #{businessInfo.cCustomer}, '%') or c_phone like concat('%', #{businessInfo.cCustomer}, '%')
+												or department like concat('%', #{businessInfo.cCustomer}, '%') or employee like concat('%', #{businessInfo.cCustomer}, '%') ) </if>
+		<if test="businessInfo.cPhone != null">AND c_phone like concat(#{businessInfo.cPhone}, '%') </if>		
+		<if test="businessInfo.city != null">AND city like concat(#{businessInfo.city}, '%') </if>
+		<if test="businessInfo.hasIn != null">AND has_in = #{businessInfo.hasIn} </if>
+		<if test="businessInfo.isNew != null">AND is_new = #{businessInfo.isNew} </if>
+		<if test="businessInfo.identifier != null">AND identifier like concat(#{businessInfo.identifier}, '%') </if>
+		<if test="businessInfo.employee != null">AND employee like concat(#{businessInfo.employee}, '%') </if>
+		<if test="businessInfo.department != null">AND department like concat(#{businessInfo.department}, '%') </if>
+		<if test="businessInfo.cGoods != null">AND c_goods like concat(#{businessInfo.cGoods}, '%') </if>
+		<if test="businessInfo.business != null">AND business like concat(#{businessInfo.business}, '%') </if>
+		<if test="businessInfo.sjStatus != null">AND sj_status = #{businessInfo.sjStatus} </if>
+		<if test="businessInfo.industryJw != null">AND industry_jw like concat(#{businessInfo.industryJw}, '%') </if>
+		<if test="businessInfo.industry1 != null">AND industry1 like concat(#{businessInfo.industry1}, '%') </if>
+		<if test="businessInfo.industry2 != null">AND industry2 like concat(#{businessInfo.industry2}, '%') </if>
+		<if test="businessInfo.bnote != null">AND bnote like concat(#{businessInfo.bnote}, '%') </if>
+		<if test="businessInfo.gmtCreatedUser != null">AND gmt_created_user like concat(#{businessInfo.gmtCreatedUser}, '%') </if>
+		<if test="businessInfo.gmtModifyUser != null">AND gmt_modify_user = #{businessInfo.gmtModifyUser} </if>
+	</trim>
+</sql>
+   
+<!-- 插入 商机信息 -->
+<insert id="addBusinessInfo" parameterType="com.hnjing.core.model.entity.BusinessInfo" >
+	<selectKey keyProperty="bId" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_business_info 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="bId != null"> b_id,</if>
+		<if test="clueId != null"> clue_id,</if>
+		<if test="erpId != null"> erp_id,</if>
+		<if test="validInfo != null"> valid_info,</if>
+		<if test="cCustomer != null">c_customer,</if>
+		<if test="cPhone != null">c_phone,</if>
+		<if test="city != null"> city,</if>
+		<if test="hasIn != null"> has_in,</if>
+		<if test="isNew != null"> is_new,</if>
+		<if test="identifier != null"> identifier,</if>
+		<if test="employee != null"> employee,</if>
+		<if test="department != null"> department,</if>
+		<if test="cGoods != null"> c_goods,</if>
+		<if test="business != null"> business,</if>
+		<if test="sjStatus != null"> sj_status,</if>
+		<if test="industryJw != null"> industry_jw,</if>
+		<if test="industry1 != null"> industry1,</if>
+		<if test="industry2 != null"> industry2,</if>
+		<if test="bnote != null"> bnote,</if>
+		gmt_created,
+		<if test="gmtCreatedUser != null"> gmt_created_user,</if>
+		gmt_modify,
+		<if test="gmtModifyUser != null"> gmt_modify_user,</if>
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="bId != null"> #{bId},</if>
+		<if test="clueId != null"> #{clueId},</if>
+		<if test="erpId != null"> #{erpId},</if>
+		<if test="validInfo != null"> #{validInfo},</if>
+		<if test="cCustomer != null">#{cCustomer},</if>
+		<if test="cPhone != null">#{cPhone},</if>
+		<if test="city != null"> #{city},</if>
+		<if test="hasIn != null"> #{hasIn},</if>
+		<if test="isNew != null"> #{isNew},</if>
+		<if test="identifier != null"> #{identifier},</if>
+		<if test="employee != null"> #{employee},</if>
+		<if test="department != null"> #{department},</if>
+		<if test="cGoods != null"> #{cGoods},</if>
+		<if test="business != null"> #{business},</if>
+		<if test="sjStatus != null"> #{sjStatus},</if>
+		<if test="industryJw != null"> #{industryJw},</if>
+		<if test="industry1 != null"> #{industry1},</if>
+		<if test="industry2 != null"> #{industry2},</if>
+		<if test="bnote != null"> #{bnote},</if>
+		now(),
+		<if test="gmtCreatedUser != null"> #{gmtCreatedUser},</if>
+		now(),
+		<if test="gmtModifyUser != null"> #{gmtModifyUser},</if>
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 商机信息 -->  
+<update id="modifyBusinessInfo" parameterType="com.hnjing.core.model.entity.BusinessInfo" >
+  	UPDATE tb_business_info SET
+	<trim suffixOverrides=",">
+		<if test="clueId != null"> clue_id = #{clueId},</if>
+		<if test="erpId != null"> erp_id = #{erpId},</if>
+		<if test="validInfo != null"> valid_info = #{validInfo},</if>
+		<if test="cCustomer != null"> c_customer = #{cCustomer},</if>
+		<if test="cPhone != null"> cPhone = #{c_phone},</if>
+		<if test="city != null"> city = #{city},</if>
+		<if test="hasIn != null"> has_in = #{hasIn},</if>
+		<if test="isNew != null"> is_new = #{isNew},</if>
+		<if test="identifier != null"> identifier = #{identifier},</if>
+		<if test="employee != null"> employee = #{employee},</if>
+		<if test="department != null"> department = #{department},</if>
+		<if test="cGoods != null"> c_goods = #{cGoods},</if>
+		<if test="business != null"> business = #{business},</if>
+		<if test="sjStatus != null"> sj_status = #{sjStatus},</if>
+		<if test="industryJw != null"> industry_jw = #{industryJw},</if>
+		<if test="industry1 != null"> industry1 = #{industry1},</if>
+		<if test="industry2 != null"> industry2 = #{industry2},</if>
+		<if test="bnote != null"> bnote = #{bnote},</if>
+		<if test="gmtCreatedUser != null"> gmt_created_user = #{gmtCreatedUser},</if>
+		gmt_modify = now(),
+		<if test="gmtModifyUser != null"> gmt_modify_user = #{gmtModifyUser},</if>
+	</trim>
+	WHERE b_id = #{bId}
+</update>
+ 
+<!-- 删除 商机信息 -->
+<delete id="dropBusinessInfoByBId" parameterType="java.lang.Integer">
+	DELETE FROM tb_business_info WHERE b_id = #{bId}
+</delete> 
+
+<!-- 根据标识查询 商机信息 -->
+<select id="queryBusinessInfoByBId"  resultMap="BusinessInfoResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_businessInfo_item"/>
+	FROM tb_business_info WHERE b_id = #{bId}
+</select>
+
+<!-- 根据属性查询商机信息 -->
+<select id="queryBusinessInfoByProperty"  resultMap="BusinessInfoResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_businessInfo_item"/>
+	FROM tb_business_info 
+	<where>
+		<include refid="sql_businessInfo_query_nowhere"/>
+	</where>
+</select>
+
+<select id="queryBusinessInfoBoByProperty"  resultMap="BusinessInfoBoResultMap" parameterType="java.util.Map">
+	select b.*, c.c_source, c.c_message, c.department from_department, c.employee from_employee, c.c_type, c.c_reason, c.c_note from (
+	SELECT 
+	<include refid="sql_businessInfo_item"/>
+	FROM tb_business_info 
+	<where>
+		<include refid="sql_businessInfo_query_nowhere"/>
+	</where>
+	) b LEFT OUTER JOIN tb_clue_info c on b.clue_id=c.c_id 
+</select>
+
+<!-- 根据商机信息属性与分页信息分页查询商机信息信息 -->
+<select id="queryBusinessInfoForPage"  resultMap="BusinessInfoResultMap" > 
+	SELECT 
+	<include refid="sql_businessInfo_item"/>
+	FROM tb_business_info 
+	<where>
+		<include refid="sql_businessInfo_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

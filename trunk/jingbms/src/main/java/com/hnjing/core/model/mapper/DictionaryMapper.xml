@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.DictionaryMapper">
+
+<!-- Result Map-->
+<resultMap id="DictionaryResultMap" type="com.hnjing.core.model.entity.Dictionary">
+	<id column="dic_id" property="dicId"/>
+	<result column="dic_group" property="dicGroup"/>
+	<result column="dic_code" property="dicCode"/>
+	<result column="dic_value" property="dicValue"/>
+	<result column="dic_flag" property="dicFlag"/>
+	<result column="dic_status" property="dicStatus"/>
+	<result column="dic_note" property="dicNote"/>
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="gmt_modify" property="gmtModify"/>
+</resultMap>
+
+<sql id="sql_dictionary_item">
+	dic_id, dic_group, dic_code, dic_value, dic_flag, dic_status, dic_note, gmt_created, gmt_modify
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_dictionary_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="dictionary.dicId != null">AND dic_id like concat(#{dictionary.dicId}, '%') </if>
+		<if test="dictionary.dicGroup != null">AND dic_group =#{dictionary.dicGroup}</if>
+		<if test="dictionary.dicCode != null">AND dic_code like concat(#{dictionary.dicCode}, '%') </if>
+		<if test="dictionary.dicValue != null">AND (dic_value like concat('%',#{dictionary.dicValue}, '%') or dic_code like concat('%',#{dictionary.dicValue}, '%') )</if>
+		<if test="dictionary.dicFlag != null">AND dic_flag = #{dictionary.dicFlag} </if>
+		<if test="dictionary.dicStatus != null">AND dic_status = #{dictionary.dicStatus} </if>
+		<if test="dictionary.dicNote != null">AND dic_note like concat(#{dictionary.dicNote}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 数据字典 -->
+<insert id="addDictionary" parameterType="com.hnjing.core.model.entity.Dictionary" >
+ 	INSERT INTO tb_dictionary 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="dicId != null"> dic_id,</if>
+		<if test="dicGroup != null"> dic_group,</if>
+		<if test="dicCode != null"> dic_code,</if>
+		<if test="dicValue != null"> dic_value,</if>
+		<if test="dicFlag != null"> dic_flag,</if>
+		<if test="dicStatus != null"> dic_status,</if>
+		<if test="dicNote != null"> dic_note,</if>
+		gmt_created,
+		gmt_modify,
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="dicId != null"> #{dicId},</if>
+		<if test="dicGroup != null"> #{dicGroup},</if>
+		<if test="dicCode != null"> #{dicCode},</if>
+		<if test="dicValue != null"> #{dicValue},</if>
+		<if test="dicFlag != null"> #{dicFlag},</if>
+		<if test="dicStatus != null"> #{dicStatus},</if>
+		<if test="dicNote != null"> #{dicNote},</if>
+		now(),
+		now(),
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 数据字典 -->  
+<update id="modifyDictionary" parameterType="com.hnjing.core.model.entity.Dictionary" >
+  	UPDATE tb_dictionary SET
+	<trim suffixOverrides=",">
+		<if test="dicGroup != null"> dic_group = #{dicGroup},</if>
+		<if test="dicCode != null"> dic_code = #{dicCode},</if>
+		<if test="dicValue != null"> dic_value = #{dicValue},</if>
+		<if test="dicFlag != null"> dic_flag = #{dicFlag},</if>
+		<if test="dicStatus != null"> dic_status = #{dicStatus},</if>
+		<if test="dicNote != null"> dic_note = #{dicNote},</if>
+		gmt_modify = now(),
+	</trim>
+	WHERE dic_id = #{dicId}
+</update>
+ 
+<!-- 删除 数据字典 -->
+<delete id="dropDictionaryByDicId" parameterType="java.lang.String">
+	DELETE FROM tb_dictionary WHERE dic_id = #{dicId}
+</delete> 
+
+<!-- 根据标识查询 数据字典 -->
+<select id="queryDictionaryByDicId"  resultMap="DictionaryResultMap" parameterType="java.lang.String">
+	SELECT 
+	<include refid="sql_dictionary_item"/>
+	FROM tb_dictionary WHERE dic_id = #{dicId}
+</select>
+
+<!-- 根据属性查询数据字典 -->
+<select id="queryDictionaryByProperty"  resultMap="DictionaryResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_dictionary_item"/>
+	FROM tb_dictionary 
+	<where>
+		<include refid="sql_dictionary_query_nowhere"/>
+	</where>
+	order by dic_flag asc
+</select>
+
+<!-- 根据数据字典属性与分页信息分页查询数据字典信息 -->
+<select id="queryDictionaryForPage"  resultMap="DictionaryResultMap" > 
+	SELECT 
+	<include refid="sql_dictionary_item"/>
+	FROM tb_dictionary 
+	<where>
+		<include refid="sql_dictionary_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

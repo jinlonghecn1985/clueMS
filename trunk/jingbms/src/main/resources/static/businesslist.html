@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css"> 
+
+</style>
+	<script type="text/javascript">	
+	var searchWord = '';
+	var searchStatus = '';
+	var pagenum = 1;
+	var pagesize = 15;
+	var token = '';
+$(document).ready(function(){ 
+	token = getQueryStringByName('t');
+	if(token!=undefined && token.length==32){
+		if(AVRIL.userToken()==undefined || AVRIL.userToken()!=token){
+			window.location.href="login.html?t="+token;
+		}
+	}
+	$('#searchKeyWord').bind('keypress', function(event) {
+		if (event.keyCode == 13) {
+			doSearchAction();
+		}
+	});	
+	reloadData();	
+});
+
+
+function getSourceName(so){
+	if(so==null || so == undefined ){
+		return "--";
+	}else if(so ==0){
+		return "<font color=\"3280FC\">待分配</font>";
+	}else if(so ==1){
+		return "<font color=\"03B8CF\">跟进中</font>";
+	}else if(so ==7){
+		return "<font color=\"EA644A\">已关闭</font>";
+	}else if(so ==8){
+		return "<font color=\"38B03F\">已合作</font>";
+	}else{
+		return "未定义";
+	}
+}
+
+function getFunction(so, bid, cus){
+	if(so==null || so == undefined ){
+		return "--";
+	}else if(so ==0){		
+		return "<a href=\"javascript:showBusinessModal('business.html?bid="+bid+"&p=12');\">"+cus+"</a>";
+	}else if(so ==1){
+		return "<a href=\"javascript:showBusinessModal('business2.html?bid="+bid+"&p=12');\">"+cus+"</a>";
+	}else if(so ==7){
+		return "<font color=\"EA644A\">"+cus+"</font>";
+	}else if(so ==8){
+		return "<font color=\"38B03F\">"+cus+"</font>";
+	}else{
+		return "未定义";
+	}
+}
+
+
+function queryClueListBack(data){
+	if(data!=undefined && data.page!=undefined){
+		if(data.data!=undefined && data.data.length>0){
+			var ihtml = "";
+			for(var i=0; i<data.data.length; i++){
+				ihtml+=("<tr >"
+						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].bId+"\"></td>"
+						+"<td>"+(getSourceName(data.data[i].sjStatus))+"</td>"	
+						+"<td>"+(data.data[i].gmtCreatedUser)+"</td>"
+						+"<td>"+(getFunction(data.data[i].sjStatus, data.data[i].bId, data.data[i].cCustomer))+"</td>"	
+						+"<td>"+data.data[i].cPhone+"</td>"			
+						+"<td>"+(data.data[i].department==undefined?'':(data.data[i].department))+"</td>"
+						+"<td>"+(data.data[i].employee==undefined?'':(data.data[i].employee))+"</td>"
+						+"<td>"+(data.data[i].cGoods==undefined?'':(data.data[i].cGoods))+"</td>"
+						+"<td>"+(data.data[i].business==undefined?'':(data.data[i].business))+"</td>"					
+						+"<td>"+data.data[i].gmtCreated+"</td>"
+						+"<td>"+data.data[i].gmtModify+"</td>"
+						+"</tr>");				
+			}	 		
+			$("#persionTable").html(ihtml);
+			AVRIL.initPageBar(data.page);
+			return;
+		}		
+	}
+	AVRIL.initPageBar(null);
+	$("#persionTable").html('<tr><td colspan=\"11\"><font color=\"red\">没有查询到数据。</font></td></tr>');
+	
+}
+
+function doSearchAction2(){
+	pagenum = 1;
+	searchWord = $('#searchKeyWord').val();	
+	reloadData();
+}
+
+function doSearchAction(source){
+	pagenum = 1;
+	searchStatus = source;	
+	reloadData();
+}
+function reloadData(){	
+	AVRIL.queryBusinessList(queryClueListBack, pagenum, pagesize, searchWord, searchStatus);	
+}
+function goPage(pn){
+	pagenum = pn;
+	reloadData();
+}
+
+function showBusinessModal(ul){	
+	$("#main").attr("src", ul);
+	$('#businessModel').modal({
+		keyboard: true,
+		position: 0,
+		keyboard : true,
+		show : true
+	});
+}
+
+function hiddenBusinessModal(){
+	$('#businessModel').modal('hide');
+	reloadData();
+}
+
+function exportFunction(){
+	showJLWarning("下载进行中，请稍候！");
+	var sou = '';
+	if(searchWord!=undefined && searchWord.length>0){
+		sou = "&cCustomer="+searchWord;
+	}
+	if(searchStatus!=undefined && searchStatus.length>0){
+		sou += "&sjStatus="+searchStatus;
+	}
+	searchWord, searchStatus
+	window.open('/businessinfos/export?1=1'+sou, '_blank');
+}
+
+
+</script>
+
+</head>
+
+<body  style="overflow: scroll;overflow-x:hidden">
+	<div class="row">
+		<div class="col-xs-0 col-sm-1 col-md-2 col-lg-3"></div>
+		<div class="input-group col-xs-12 col-sm-10 col-md-8 col-lg-6">
+			<input type="text" id="searchKeyWord" class="form-control"
+				placeholder="企业名称，联系电话，跟进部门，跟进人"> <span class="input-group-addon"
+				onclick="doSearchAction2();"><i class="icon icon-cloud">查询</i></span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="btn-group" data-toggle="buttons" style="margin-left: 12px;margin-bottom: 3px;">
+			<label class="btn" onclick="doSearchAction('');"> <input type="radio" name="options" id="option2"> 全部</label> 	
+			<label class="btn btn-primary" onclick="doSearchAction('0');"> <input type="radio" name="options" id="option2"> 待分配</label> 	
+			<label class="btn btn-info" onclick="doSearchAction('1');"> <input type="radio" name="options" id="option2"> 跟进中</label> 	
+			<label class="btn btn-success" onclick="doSearchAction('8');"> <input type="radio" name="options" id="option2"> 已合作</label> 	
+			<label class="btn btn-danger" onclick="doSearchAction('7');"> <input type="radio" name="options" id="option2"> 已关闭</label> 		
+		</div>
+		<div class="btn-group" style="float:right;margin-right: 30px;margin-bottom: 5px;">
+		  <button type="button" class="btn" onclick="exportFunction();"><i class="icon icon-file-excel"></i>&nbsp;导出</button>
+		</div>	
+	</div>
+
+<table class="table table-striped">
+		  <thead>
+		    <tr>
+		      <th width="40px"></th>
+		      <th width="70px">商机状态</th>
+		      <th width="80px">提交人员</th>
+		      <th width="280px">企业名称</th>
+		      <th width="120px">联系电话</th>
+		      <th width="120px">跟进部门</th>
+		      <th width="120px">跟进人员</th>
+		      <th width="220px">意向产品</th>
+		      <th width="90px">合作产品</th>
+		      <th width="120px">提交时间</th>
+		      <th width="120px">更新时间</th>
+		    </tr>
+		    
+		  </thead>
+	  	<tbody id="persionTable">    
+	  	</tbody>  
+</table>
+<footer style="float:right; ">
+	<ul class="pager"></ul>	
+</footer>
+
+
+<div id="businessModel" class="modal fade">
+		<div class="modal-dialog  modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">商机转发</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<iframe width="100%" height="100%" src="nullnull.html" style="overflow: scroll;overflow-x:hidden"  frameborder="0" id="main" name="main" ></iframe>
+			</div>
+		</div>
+	</div>
+	</div>
+
+</body>
+</html>

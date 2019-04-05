@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css"> 
+.elehidden{display: none;}
+</style>
+	<script type="text/javascript">	
+	var searchWord = '';
+	var searchStatus = '';
+	var pagenum = 1;
+	var pagesize = 15;
+$(document).ready(function(){ 
+	$('#searchKeyWord1').bind('keypress', function(event) {
+		if (event.keyCode == 13) {
+			doSearchAction();
+		}
+	});	
+	reloadData();	
+});
+function getSourceName(so){
+	if(so==null || so == undefined ){
+		return "--";
+	}else if(so ==0){
+		return "待核查";		
+	}else if(so ==1){
+		return "<font color=\"03B8CF\">商机待发</font>";
+	}else if(so ==2){
+		return "<font color=\"F1A325\">商机跟进</font>";
+	}else if(so ==3){
+		return "非商机";		
+	}else if(so ==4){
+		return "<font color=\"EA644A\">商机中止</font>";
+	}else if(so ==5){
+		return "<font color=\"38B03F\">商机成交</font>";
+	}else{
+		return "未定义";
+	}
+}
+
+function shwoClueLink(so, cn, cid){
+	console.log('load avril.js'+so);	
+	if(so==null || so == undefined ){
+		return cn;
+	}else if(so == 0 || so == 3){		
+		return "<a href=\"javascript:showClueModel('&cid="+cid+"');\">"+((cn==undefined||cn.length==0)?"--":cn)+"</a>";
+	}else{
+		return cn;
+	}
+}
+
+
+function queryClueListBack(data){
+	if(data!=undefined && data.page!=undefined){
+		if(data.data!=undefined && data.data.length>0){
+			var ihtml = "";
+			for(var i=0; i<data.data.length; i++){
+				ihtml+=("<tr >"
+						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].cId+"\"></td>"
+						+"<td>"+(getSourceName(data.data[i].statuss))+"</td>"	
+						+"<td>"+data.data[i].cCity+"</td>"
+						+"<td>"+(data.data[i].cSource)+"</td>"	
+						+"<td>"+data.data[i].cStatus+"</td>"
+						+"<td>"+(data.data[i].cReason==undefined?"":data.data[i].cReason)+"</td>"
+						+"<td>"+shwoClueLink(data.data[i].statuss,(data.data[i].cCustomer==undefined?'--':data.data[i].cCustomer), data.data[i].cId)+"</td>"
+						+"<td>"+data.data[i].cMan+"</td>"
+						+"<td>"+data.data[i].cPhone+"</td>"
+						+"<td>"+(data.data[i].cGoods==undefined?'':data.data[i].cGoods)+"</td>"
+						+"<td>"+(data.data[i].cNote==undefined?'':data.data[i].cNote)+"</td>"							
+						
+						+"<td>"+data.data[i].gmtModify+"</td>"
+						+"</tr>");				
+			}	 		
+			$("#persionTable").html(ihtml);
+			AVRIL.initPageBar(data.page);
+			return;
+		}		
+	}
+	AVRIL.initPageBar(null);
+	$("#persionTable").html('<tr><td colspan=\"12\"><font color=\"red\">没有查询到数据。</font></td></tr>');
+	
+}
+
+
+function doSearchAction2(){
+	pagenum = 1;
+	searchStatus = '';	
+	searchWord = $('#searchKeyWord1').val();
+	reloadData();
+}
+function doSearchAction(status){
+	pagenum = 1;
+	searchStatus = status;	
+	reloadData();
+}
+function reloadData(){	
+	AVRIL.queryClueList(queryClueListBack, pagenum, pagesize, searchWord, searchStatus);	
+}
+function goPage(pn){
+	pagenum = pn;
+	reloadData();
+}
+function doDeving(){
+	alert('功能开发中');
+}
+function showClueModel(cid){
+	if(cid==undefined || cid.length==0){
+		$("#main").attr("src", "clueadd.html?p=12");
+	}else{
+		$("#main").attr("src", "clueadd2.html?p=12"+cid);
+	}
+	
+	$('#clueaddModel').modal({
+		keyboard: true,
+		position: 0,
+		keyboard : true,
+		show : true
+	});
+}
+
+function hiddenClueModal(){
+	$('#clueaddModel').modal('hide');
+	reloadData();
+}
+
+function showInfoWindow(){
+	$('#uploadInfoWindow').modal({
+	    keyboard : true,
+	    show     : true
+	});	
+}
+
+
+function doDataUpload(){
+	showJLWarning("上传数据中，可能等待时间较长。请耐心等待，具体时间依数据量而定！");
+	$("#uploadFrom").submit();
+}
+
+function exportFunction(){
+	showJLWarning("下载进行中，请稍候！");
+	var sou = '';
+	if(searchWord!=undefined && searchWord.length>0){
+		sou = "&cCustomer="+searchWord;
+	}
+	if(searchStatus!=undefined && searchStatus.length>0){
+		sou += "&statuss="+searchStatus;
+	}
+	searchWord, searchStatus
+	window.open('/clueinfos/export?1=1'+sou, '_blank');
+}
+
+function hiddenBusinessWindow(){
+	$('#uploadBusinessWindow').modal('hide');
+	reloadData();
+}
+
+function showBusinessWindow(){
+	$('#uploadBusinessWindow').modal({
+	    keyboard : true,
+	    show     : true
+	});	
+}
+
+function doEjingUpload(){
+	showJLWarning("上传数据中，可能等待时间较长。请耐心等待，具体时间依数据量而定！");
+	$("#uploadFromBus").submit();
+}
+
+</script>
+
+</head>
+
+<body  style="overflow: scroll;overflow-x:hidden">
+<br />
+
+	<div class="row">
+		<div class="col-xs-0 col-sm-1 col-md-2 col-lg-3"></div>
+		<div class="input-group col-xs-12 col-sm-10 col-md-8 col-lg-6">
+			<input type="text" id="searchKeyWord1" class="form-control"
+				placeholder="企业名称，联系电话查询"> <span class="input-group-addon"
+				onclick="doSearchAction2();"><i class="icon icon-cloud">查询</i></span>
+		</div>
+	</div>
+<br />
+
+<div class="row">
+		<div class="btn-group" data-toggle="buttons" style="margin-left: 12px;margin-bottom: 3px;">
+			<label class="btn" onclick="doSearchAction('');"> <input type="radio" name="options" id="option2"> 全部</label> 	
+			<label class="btn btn-primary" onclick="doSearchAction('0');"> <input type="radio" name="options" id="option2">待核查</label> 	
+			<label class="btn btn-info" onclick="doSearchAction('1');"> <input type="radio" name="options" id="option2">商机待发</label> 	
+			<label class="btn btn-warning" onclick="doSearchAction('2');"> <input type="radio" name="options" id="option2">商机跟进</label> 
+			<label class="btn btn-primary" onclick="doSearchAction('3');"> <input type="radio" name="options" id="option2">非商机</label> 		
+			<label class="btn btn-danger" onclick="doSearchAction('4');"> <input type="radio" name="options" id="option2">商机中止</label> 	
+			<label class="btn btn-success" onclick="doSearchAction('5');"> <input type="radio" name="options" id="option2">商机成交</label> 
+		</div>
+		<div class="btn-group" style="float:right;margin-right: 30px;margin-bottom: 5px;">
+			<button type="button" class="btn" onclick="showClueModel('');"><i style="color:#38b03f;" class="icon icon-plus"></i>&nbsp;新增</button>
+		  	<button type="button" class="btn" onclick="showBusinessWindow();"><i class="icon icon-arrow-up"></i>&nbsp;Ejing导入</button>
+		  	<button type="button" class="btn" onclick="showInfoWindow();"><i class="icon icon-upload"></i>&nbsp;轩辕导入</button>
+		  	<button type="button" class="btn" onclick="exportFunction();"><i class="icon icon-file-excel"></i>&nbsp;导出</button>
+		</div>	
+</div>
+
+
+<table class="table table-striped">
+		  <thead>
+		    <tr>
+		      <th width="40px"></th>
+		      <th width="70px">线索状态</th>
+		      <th width="70px">归属城市</th>
+		      <th width="80px">线索来源</th>
+		      <th width="80px">线索判定</th>
+		      <th width="120px">判定补充</th>
+		      <th width="220px">企业名称</th>
+		      <th width="90px">联系人</th>
+		      <th width="100px">联系电话</th>
+		      <th width="180px">意向产品</th>
+		      <th >沟通备注</th>		     
+		      <th width="120px">更新时间</th>
+		    </tr>
+		    
+		  </thead>
+	  	<tbody id="persionTable">    
+	  	</tbody>  
+</table>
+<footer style="float:right; ">
+	<ul class="pager"></ul>	
+</footer>
+
+
+
+	<div id="clueaddModel" class="modal fade">
+		<div class="modal-dialog  modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">新增线索</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<iframe width="100%" height="100%" src="nullnull.html" style="overflow: scroll;overflow-x:hidden"  frameborder="0" id="main" name="main" ></iframe>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+<!-- 弹窗提示 --> 
+<div id="uploadInfoWindow" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">关闭</span></button>
+        <h4 class="modal-title">轩辕线索上载窗口</h4>
+      </div>
+      <div class="modal-body">
+	    <form id="uploadFrom" action="/bmsxuanyuan/upload" method="post" enctype="multipart/form-data">
+	   		<input type="file" name="xlsFile"/>
+<!-- 	       <input type="submit" value="提交"/> -->
+	    </form>	
+      </div>
+      <div class="modal-footer">
+      	<input type="hidden" id="stageIdForDel"></input>
+        <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+        <button type="button" class="btn btn-primary" onclick="doDataUpload();">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="uploadBusinessWindow" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">关闭</span></button>
+        <h4 class="modal-title">Ejing线索上载窗口</h4>
+      </div>
+      <div class="modal-body">
+	    <form id="uploadFromBus" action="/bmsejing/upload" method="post" enctype="multipart/form-data">
+	   		<input type="file" name="xlsFile"/>
+	    </form>	
+      </div>
+      <div class="modal-footer">
+      	<input type="hidden" id="stageIdForDel"></input>
+        <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+        <button type="button" class="btn btn-primary" onclick="doEjingUpload();">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+	
+</body>
+</html>

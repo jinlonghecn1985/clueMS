@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.ClueInfoMapper">
+
+<!-- Result Map-->
+<resultMap id="ClueInfoResultMap" type="com.hnjing.core.model.entity.ClueInfo">
+	<id column="c_id" property="cId"/>
+	<result column="c_source" property="cSource"/>
+	<result column="c_man" property="cMan"/>
+	<result column="c_phone" property="cPhone"/>
+	<result column="c_message" property="cMessage"/>
+	<result column="department" property="department"/>
+	<result column="employee" property="employee"/>
+	<result column="c_goods" property="cGoods"/>
+	<result column="c_city" property="cCity"/>
+	<result column="c_type" property="cType"/>
+	<result column="c_status" property="cStatus"/>
+	<result column="c_reason" property="cReason"/>
+	<result column="c_customer" property="cCustomer"/>
+	<result column="c_note" property="cNote"/>
+	<result column="statuss" property="statuss"/>
+	<result column="param1" property="param1"/>
+	<result column="param2" property="param2"/>
+	
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="created_no" property="createdNo"/>
+	<result column="gmt_modify" property="gmtModify"/>
+	<result column="modify_no" property="modifyNo"/>
+</resultMap>
+
+<sql id="sql_clueInfo_item">
+	c_id, c_source, c_man, c_phone, c_message, department, employee, c_goods, c_city, c_type, c_status, c_reason, c_customer, c_note, param1, param2, statuss, gmt_created, created_no, gmt_modify, modify_no
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_clueInfo_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="clueInfo.cId != null">AND c_id = #{clueInfo.cId} </if>
+		<if test="clueInfo.cSource != null">AND c_source like concat(#{clueInfo.cSource}, '%') </if>
+		<if test="clueInfo.cMan != null">AND c_man like concat(#{clueInfo.cMan}, '%') </if>
+		<if test="clueInfo.cPhone != null">AND c_phone like concat(#{clueInfo.cPhone}, '%') </if>
+		<if test="clueInfo.cMessage != null">AND c_message like concat(#{clueInfo.cMessage}, '%') </if>
+		<if test="clueInfo.department != null">AND department like concat(#{clueInfo.department}, '%') </if>
+		<if test="clueInfo.employee != null">AND employee like concat(#{clueInfo.employee}, '%') </if>
+		<if test="clueInfo.cGoods != null">AND c_goods like concat(#{clueInfo.cGoods}, '%') </if>
+		<if test="clueInfo.cCity != null">AND c_city like concat(#{clueInfo.cCity}, '%') </if>
+		<if test="clueInfo.cType != null">AND c_type like concat(#{clueInfo.cType}, '%') </if>
+		<if test="clueInfo.cStatus != null">AND c_status like concat(#{clueInfo.cStatus}, '%') </if>
+		<if test="clueInfo.statuss != null">AND statuss =#{clueInfo.statuss} </if>
+		<if test="clueInfo.cReason != null">AND c_reason like concat(#{clueInfo.cReason}, '%') </if>
+		<if test="clueInfo.cCustomer != null">AND (c_customer like concat('%', #{clueInfo.cCustomer}, '%') or c_phone like concat('%', #{clueInfo.cCustomer}, '%')) </if>
+		<if test="clueInfo.cNote != null">AND c_note like concat(#{clueInfo.cNote}, '%') </if>
+		<if test="clueInfo.param1 != null">AND param1 like concat(#{clueInfo.param1}, '%') </if>
+		<if test="clueInfo.param2 != null">AND param1 like concat(#{clueInfo.param1}, '%') </if>
+		<if test="clueInfo.createdNo != null">AND created_no like concat(#{clueInfo.createdNo}, '%') </if>
+		<if test="clueInfo.modifyNo != null">AND modify_no like concat(#{clueInfo.modifyNo}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 线索信息 -->
+<insert id="addClueInfo" parameterType="com.hnjing.core.model.entity.ClueInfo" >
+	<selectKey keyProperty="cId" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_clue_info 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="cId != null"> c_id,</if>
+		<if test="cSource != null"> c_source,</if>
+		<if test="cMan != null"> c_man,</if>
+		<if test="cPhone != null"> c_phone,</if>
+		<if test="cMessage != null"> c_message,</if>
+		<if test="department != null"> department,</if>
+		<if test="employee != null"> employee,</if>
+		<if test="cGoods != null"> c_goods,</if>
+		<if test="cCity != null"> c_city,</if>
+		<if test="cType != null"> c_type,</if>
+		<if test="cStatus != null"> c_status,</if>
+		<if test="statuss != null"> statuss, </if>
+		<if test="cReason != null"> c_reason,</if>
+		<if test="cCustomer != null"> c_customer,</if>
+		<if test="param1 != null"> param1,</if>
+		<if test="param2 != null"> param2,</if>
+		<if test="cNote != null"> c_note,</if>
+		gmt_created,
+		<if test="createdNo != null"> created_no,</if>
+		gmt_modify,
+		<if test="modifyNo != null"> modify_no,</if>
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="cId != null"> #{cId},</if>
+		<if test="cSource != null"> #{cSource},</if>
+		<if test="cMan != null"> #{cMan},</if>
+		<if test="cPhone != null"> #{cPhone},</if>
+		<if test="cMessage != null"> #{cMessage},</if>
+		<if test="department != null"> #{department},</if>
+		<if test="employee != null"> #{employee},</if>
+		<if test="cGoods != null"> #{cGoods},</if>
+		<if test="cCity != null"> #{cCity},</if>
+		<if test="cType != null"> #{cType},</if>
+		<if test="cStatus != null"> #{cStatus},</if>
+		<if test="statuss != null"> #{statuss}, </if>
+		<if test="cReason != null"> #{cReason},</if>
+		<if test="cCustomer != null"> #{cCustomer},</if>
+		<if test="param1 != null"> #{param1},</if>
+		<if test="param2 != null"> #{param2},</if>
+		<if test="cNote != null"> #{cNote},</if>
+		now(),
+		<if test="createdNo != null"> #{createdNo},</if>
+		now(),
+		<if test="modifyNo != null"> #{modifyNo},</if>
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 线索信息 -->  
+<update id="modifyClueInfo" parameterType="com.hnjing.core.model.entity.ClueInfo" >
+  	UPDATE tb_clue_info SET
+	<trim suffixOverrides=",">
+		<if test="cSource != null"> c_source = #{cSource},</if>
+		<if test="cMan != null"> c_man = #{cMan},</if>
+		<if test="cPhone != null"> c_phone = #{cPhone},</if>
+		<if test="cMessage != null"> c_message = #{cMessage},</if>
+		<if test="department != null"> department = #{department},</if>
+		<if test="employee != null"> employee = #{employee},</if>
+		<if test="cGoods != null"> c_goods = #{cGoods},</if>
+		<if test="cCity != null"> c_city = #{cCity},</if>
+		<if test="cType != null"> c_type = #{cType},</if>
+		<if test="cStatus != null"> c_status = #{cStatus},</if>
+		<if test="statuss != null"> statuss=#{statuss}, </if>
+		<if test="cReason != null"> c_reason = #{cReason},</if>
+		<if test="cCustomer != null"> c_customer = #{cCustomer},</if>
+		<if test="cNote != null"> c_note = #{cNote},</if>
+		<if test="param1 != null"> param1=#{param1},</if>
+		<if test="param2 != null"> param2=#{param2},</if>
+		gmt_modify = now(),
+		<if test="modifyNo != null"> modify_no = #{modifyNo},</if>
+	</trim>
+	WHERE c_id = #{cId}
+</update>
+ 
+<!-- 删除 线索信息 -->
+<delete id="dropClueInfoByCId" parameterType="java.lang.Integer">
+	DELETE FROM tb_clue_info WHERE c_id = #{cId}
+</delete> 
+
+<!-- 根据标识查询 线索信息 -->
+<select id="queryClueInfoByCId"  resultMap="ClueInfoResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_clueInfo_item"/>
+	FROM tb_clue_info WHERE c_id = #{cId}
+</select>
+
+<!-- 根据属性查询线索信息 -->
+<select id="queryClueInfoByProperty"  resultMap="ClueInfoResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_clueInfo_item"/>
+	FROM tb_clue_info 
+	<where>
+		<include refid="sql_clueInfo_query_nowhere"/>
+	</where>
+</select>
+
+<!-- 根据线索信息属性与分页信息分页查询线索信息信息 -->
+<select id="queryClueInfoForPage"  resultMap="ClueInfoResultMap" > 
+	SELECT 
+	<include refid="sql_clueInfo_item"/>
+	FROM tb_clue_info 
+	<where>
+		<include refid="sql_clueInfo_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

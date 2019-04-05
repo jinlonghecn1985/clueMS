@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+body{
+min-width:900px;
+}
+
+#pageHeader{
+	position: relative;
+	height: 40px;
+	padding: 0;
+	background-color: #f1f1f1;
+	border-bottom: 1px solid #e5e5e5;
+}
+#userHeader{
+	position: fixed;
+	top: 14px;
+	right: 15px;
+	z-index: 1030;
+	display: block;
+}
+.icon{
+position: absolute;
+top: 12px;
+z-index: 10;
+width: 66px;
+height: 36px;
+font-style: normal;
+line-height: 36px;
+text-align: left;
+padding-left: 4px;
+border-radius: 18px;
+background-color:#38b03f; 
+color:#fff;
+}
+
+html, body {
+	height: 100%;
+	overflow:scroll;
+	overflow-x:hidden;
+	overflow-y:hidden;
+}
+</style>
+<script type="text/javascript">
+var token = '';
+var pagenum= 1;
+var pagesize = 15;
+var searchWord = '';
+$(document).ready(function() {
+	token = getQueryStringByName('t');
+	if(token!=undefined && token.length==32){
+		if(AVRIL.userToken()==undefined || AVRIL.userToken()!=token){
+			window.location.href="login.html?t="+token;
+		}
+	}
+	$('#userinfo').html(AVRIL.userName());
+	$('#searchKeyWord').bind('keypress', function(event) {
+		if (event.keyCode == 13) {
+			doSearchAction2();
+		}
+	});
+});
+
+function doDeving(){
+	alert('功能开发中');
+}
+
+function showClueModel(){
+	$("#main").attr("src", "clueadd.html?p=12");
+	$('#clueaddModel').modal({
+		keyboard: true,
+		position: 0,
+		keyboard : true,
+		show : true
+	});
+}
+
+function hiddenClueModal(){
+	$('#clueaddModel').modal('hide');
+	reloadClueData();
+	reloadBusinessData();
+}
+
+function setIframeHeight(iframe) {
+	if (iframe) {
+		iframe.height = (document.documentElement.clientHeight || document.body.clientHeight)-88;
+	}
+};
+
+window.onload = function() {
+	setIframeHeight(document.getElementById('main'));
+};
+
+function showModel(){
+	$('#checkModel').modal({
+		keyboard : true,
+		show : true
+	});
+}
+
+function refreshToken(){
+	AVRIL.refreshToken('', refreshTokenBack);
+}
+
+function refreshTokenBack(data){		
+		top.location ="login.html";	
+}
+
+</script>
+</head>
+
+<body>
+<div>
+		<div id="pageHeader">
+<!-- 			<i class="icon icon-calendar" data-toggle="tooltip" title="本月转化商机量" -->
+<!-- 				style="left: 8px;">&nbsp;199</i> <i class="icon icon-newspaper-o" -->
+<!-- 				data-toggle="tooltip" title="本周转化商机量" style="left: 78px;">&nbsp;45</i> -->
+<!-- 			<i class="icon icon-sun" data-toggle="tooltip" title="今日转化商机量" -->
+<!-- 				style="left: 148px;">&nbsp;4</i> -->
+		</div>
+		<div id="pageBody" style="margin-left: 6px; margin-right: 6px; ">
+		
+
+			<div class="content">
+				<iframe width="100%" src="businesslist.html"
+					style="width: 100%; height: 300; padding-top: 9px; overflow: scroll; overflow-x: hidden"
+					frameborder="0" id="main" name="main"></iframe>
+			</div>
+
+		</div>
+
+
+
+	</div>
+
+	<div id="userHeader" style="top: 0px;right: 100px;">
+		<div id="userHeader" style="top: 0px; right: 100px;">
+			<ul class="nav nav-secondary">				
+				<li><a class="dropdown-toggle" data-toggle="dropdown"
+					 id="userinfo"><span class="caret"></span></a>
+					<ul class="dropdown-menu">
+						<li><a href="javascript:void(0);">个人信息</a></li>
+						<li><a href="javascript:void(0);" onClick="showModel();">刷新授权</a></li>
+						<li><a href="javascript:void(0);" onClick="AVRIL.loginOut();">退出</a></li>
+					</ul></li>
+			</ul>
+		</div>
+	</div>
+	
+	
+	<div id="clueaddModel" class="modal fade">
+		<div class="modal-dialog  modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">新增线索</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<iframe width="100%" height="100%" src="login2.html?p=12" style="overflow: scroll;overflow-x:hidden"  frameborder="0" id="main" name="main" ></iframe>
+<!-- 				<div class="modal-footer"> -->
+<!-- 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> -->
+<!-- 					<button onclick="doDeletePersion()" type="button" -->
+<!-- 						class="btn btn-primary">确定</button> -->
+<!-- 				</div> -->
+			</div>
+		</div>
+	</div>
+	</div>
+</body>
+</html>

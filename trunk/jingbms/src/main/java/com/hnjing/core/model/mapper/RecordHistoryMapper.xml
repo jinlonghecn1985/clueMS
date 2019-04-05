@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.RecordHistoryMapper">
+
+<!-- Result Map-->
+<resultMap id="RecordHistoryResultMap" type="com.hnjing.core.model.entity.RecordHistory">
+	<id column="o_id" property="oId"/>
+	<result column="c_name" property="cName"/>
+	<result column="c_phone" property="cPhone"/>
+	<result column="e_department" property="eDepartment"/>
+	<result column="e_name" property="eName"/>
+	<result column="content" property="content"/>
+	<result column="created_man" property="createdMan"/>
+	<result column="gmt_created" property="gmtCreated"/>
+</resultMap>
+
+<sql id="sql_recordHistory_item">
+	o_id, c_name, c_phone, e_department, e_name, content, created_man, gmt_created
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_recordHistory_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="recordHistory.oId != null">AND o_id = #{recordHistory.oId} </if>
+		<if test="recordHistory.cName != null">AND c_name like concat(#{recordHistory.cName}, '%') </if>
+		<if test="recordHistory.cPhone != null">AND c_phone like concat(#{recordHistory.cPhone}, '%') </if>
+		<if test="recordHistory.eDepartment != null">AND e_department like concat(#{recordHistory.eDepartment}, '%') </if>
+		<if test="recordHistory.eName != null">AND e_name like concat(#{recordHistory.eName}, '%') </if>
+		<if test="recordHistory.createdMan != null">AND created_man like concat(#{recordHistory.createdMan}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 操作记录 -->
+<insert id="addRecordHistory" parameterType="com.hnjing.core.model.entity.RecordHistory" >
+	<selectKey keyProperty="oId" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_record_history 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="oId != null"> o_id,</if>
+		<if test="cName != null"> c_name,</if>
+		<if test="cPhone != null"> c_phone,</if>
+		<if test="eDepartment != null"> e_department,</if>
+		<if test="eName != null"> e_name,</if>
+		<if test="content != null"> content,</if>
+		<if test="createdMan != null"> created_man,</if>
+		gmt_created,
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="oId != null"> #{oId},</if>
+		<if test="cName != null"> #{cName},</if>
+		<if test="cPhone != null"> #{cPhone},</if>
+		<if test="eDepartment != null"> #{eDepartment},</if>
+		<if test="eName != null"> #{eName},</if>
+		<if test="content != null"> #{content},</if>
+		<if test="createdMan != null"> #{createdMan},</if>
+		now(),
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 操作记录 -->  
+<update id="modifyRecordHistory" parameterType="com.hnjing.core.model.entity.RecordHistory" >
+  	UPDATE tb_record_history SET
+	<trim suffixOverrides=",">
+		<if test="cName != null"> c_name = #{cName},</if>
+		<if test="cPhone != null"> c_phone = #{cPhone},</if>
+		<if test="eDepartment != null"> e_department = #{eDepartment},</if>
+		<if test="eName != null"> e_name = #{eName},</if>
+		<if test="content != null"> content = #{content},</if>
+		<if test="createdMan != null"> created_man = #{createdMan},</if>
+	</trim>
+	WHERE o_id = #{oId}
+</update>
+ 
+<!-- 删除 操作记录 -->
+<delete id="dropRecordHistoryByOId" parameterType="java.lang.Integer">
+	DELETE FROM tb_record_history WHERE o_id = #{oId}
+</delete> 
+
+<!-- 根据标识查询 操作记录 -->
+<select id="queryRecordHistoryByOId"  resultMap="RecordHistoryResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_recordHistory_item"/>
+	FROM tb_record_history WHERE o_id = #{oId}
+</select>
+
+<!-- 根据属性查询操作记录 -->
+<select id="queryRecordHistoryByProperty"  resultMap="RecordHistoryResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_recordHistory_item"/>
+	FROM tb_record_history 
+	<where>
+		<include refid="sql_recordHistory_query_nowhere"/>
+	</where>
+</select>
+
+<!-- 根据操作记录属性与分页信息分页查询操作记录信息 -->
+<select id="queryRecordHistoryForPage"  resultMap="RecordHistoryResultMap" > 
+	SELECT 
+	<include refid="sql_recordHistory_item"/>
+	FROM tb_record_history 
+	<where>
+		<include refid="sql_recordHistory_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

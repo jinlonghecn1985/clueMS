@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.MailHistoryMapper">
+
+<!-- Result Map-->
+<resultMap id="MailHistoryResultMap" type="com.hnjing.core.model.entity.MailHistory">
+	<id column="id" property="id"/>
+	<result column="send_to" property="sendTo"/>
+	<result column="titile" property="titile"/>
+	<result column="content" property="content" typeHandler="com.hnjing.utils.MyBlobTypeHandler"/>
+	<result column="gmt_created" property="gmtCreated"/>
+</resultMap>
+
+<sql id="sql_mailHistory_item">
+	id, send_to, titile, content, gmt_created
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_mailHistory_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="mailHistory.id != null">AND id = #{mailHistory.id} </if>
+		<if test="mailHistory.sendTo != null">AND send_to like concat(#{mailHistory.sendTo}, '%') </if>
+		<if test="mailHistory.titile != null">AND titile like concat(#{mailHistory.titile}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 邮件发送记录 -->
+<insert id="addMailHistory" parameterType="com.hnjing.core.model.entity.MailHistory" >
+	<selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_mail_history 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="id != null"> id,</if>
+		<if test="sendTo != null"> send_to,</if>
+		<if test="titile != null"> titile,</if>
+		<if test="content != null"> content,</if>
+		gmt_created
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="id != null"> #{id},</if>
+		<if test="sendTo != null"> #{sendTo},</if>
+		<if test="titile != null"> #{titile},</if>
+		<if test="content != null"> #{content},</if>
+		now()
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 邮件发送记录 -->  
+<update id="modifyMailHistory" parameterType="com.hnjing.core.model.entity.MailHistory" >
+  	UPDATE tb_mail_history SET
+	<trim suffixOverrides=",">
+		<if test="sendTo != null"> send_to = #{sendTo},</if>
+		<if test="titile != null"> titile = #{titile},</if>
+		<if test="content != null"> content = #{content},</if>
+		<if test="gmtCreated != null"> gmt_created = #{gmtCreated},</if>
+	</trim>
+	WHERE id = #{id}
+</update>
+ 
+<!-- 删除 邮件发送记录 -->
+<delete id="dropMailHistoryById" parameterType="java.lang.Integer">
+	DELETE FROM tb_mail_history WHERE id = #{id}
+</delete> 
+
+<!-- 根据标识查询 邮件发送记录 -->
+<select id="queryMailHistoryById"  resultMap="MailHistoryResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_mailHistory_item"/>
+	FROM tb_mail_history WHERE id = #{id}
+</select>
+
+<!-- 根据属性查询邮件发送记录 -->
+<select id="queryMailHistoryByProperty"  resultMap="MailHistoryResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_mailHistory_item"/>
+	FROM tb_mail_history 
+	<where>
+		<include refid="sql_mailHistory_query_nowhere"/>
+	</where>
+</select>
+
+<!-- 根据邮件发送记录属性与分页信息分页查询邮件发送记录信息 -->
+<select id="queryMailHistoryForPage"  resultMap="MailHistoryResultMap" > 
+	SELECT 
+	<include refid="sql_mailHistory_item"/>
+	FROM tb_mail_history 
+	<where>
+		<include refid="sql_mailHistory_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

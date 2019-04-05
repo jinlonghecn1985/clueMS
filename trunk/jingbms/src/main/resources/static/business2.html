@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- ZUI 扩展 JavaScript 文件 -->
+<script src="./lib/selectable/zui.selectable.min.js"></script>
+<!-- 自定义业务 JavaScript 文件 -->
+<script src="avril.js"></script>
+<style type="text/css">
+.elehidden {
+	display: none;
+}
+
+#selectableExample1>.tile.active {
+	background: #3280fc;
+	color: #fff;
+}
+
+.icon-plus {
+	color: #38b03f;
+}
+
+#selectableExample1>.tile {
+	text-align: center;
+	padding: 15px 0;
+	background-color: #e5e5e5;
+	margin: 10px;
+	float: left;
+	width: 70px;
+	height: 48px;
+	font-size: 13px;
+}
+
+.form-group {
+	margin-bottom: 5px;
+}
+
+hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.titlediv{
+font-family: "Helvetica Neue",Helvetica,Tahoma,Arial,'Microsoft Yahei','PingFang SC','Hiragino Sans GB','WenQuanYi Micro Hei',sans-serif;
+font-weight: 700;
+font-size: 26px;
+line-height: 1.5;
+margin-bottom: 10px;
+margin-top: 10px;
+}
+</style>
+
+<script type="text/javascript">
+	var bid;
+	var hasp = getQueryStringByName('p');
+	$(document).ready(function() {		
+		bid = getQueryStringByName('bid');		
+		if(bid==undefined || bid.length==0){
+// 			window.location.href="clueadd.html";
+		}
+		if(hasp!=undefined && hasp=='12'){
+			$('#closeButton').before('<button class="btn" id="closeParent" type="button" onclick="closeWin();" >关闭窗口</button>&nbsp;');
+		}	
+		AVRIL.getBusinessInfo(bid, getClueInfoBack);		
+	});
+	
+	
+	function doDataCheck(){		
+		var haserror = false;
+		var business = '';
+		$.each($('input:checkbox:checked'),function(){
+			business +=($(this).val()+',');
+        });
+		if(business!=undefined && business.length>1){
+			$('#fromProduct').removeClass('has-error');
+			haserror = false;
+			business = business.substr(0,business.length-1);
+		}else{
+			showJLError('请选择成交产品后重试！');
+			$('#fromProduct').addClass('has-error');
+			business = '';
+			haserror = true;
+		}
+		
+		
+		
+		$fromNote = $('#fromNote');
+		if($fromNote.val()==undefined || $fromNote.val().length==0){
+			$fromNote.parent().addClass('has-error');
+			showJLError('请填写商机备注信息后重试！');
+			haserror = true;
+		}else{			
+			$fromNote.parent().removeClass('has-error');
+		}
+		
+		if(!haserror){
+			var params = {};
+			params.bId = bid;
+			params.business = business;
+			params.bnote = $fromNote.val();
+			
+			AVRIL.dealBusiness(params, dealBusinessBack);			
+		}
+	}
+	
+	function dealBusinessBack(data){
+		if(data!=undefined && data.bId!=undefined){
+			showJLSuccess('数据保存成功！');
+			closeWin();
+		}
+	}
+	
+	
+	function doDataCheck2(){
+		var haserror = false;
+		$fromNote = $('#fromNote');
+		if($fromNote.val()==undefined || $fromNote.val().length==0){
+			$fromNote.parent().addClass('has-error');
+			showJLError('请填写反馈内容后重试！');
+			haserror = true;
+		}else{
+			$fromNote.parent().removeClass('has-error');
+		}
+		if(!haserror){
+			var params = {};
+			params.bId = bid;         
+			params.content = $fromNote.val();			
+			AVRIL.saveReplyInfo(saveReplyInfoBack, params);			
+		}
+	}
+	
+	function saveReplyInfoBack(data){
+		if(data!=undefined && data.bId!=undefined){
+			showJLSuccess('记录反馈内容成功！');
+			closeWin();
+		}
+	}
+	
+	function showQCC(){
+		window.open("https://www.qichacha.com/search?key="+$('#pageName').html()); 
+	}
+	
+	function closeWin(){	
+		if(parent){
+			parent.window.hiddenBusinessModal();
+		}
+	}
+	
+</script>
+
+</head>
+
+<body style="overflow: scroll; overflow-x: hidden; overflow-y: auto">
+	<form class="form-horizontal">
+		<div class="container-fixed">
+			<article class="article" style="padding: 0px; margin-bottom: 20px;">
+				<!-- 文章头部 -->
+				<header>
+					<div class="titlediv">
+					<font id="pageName">&nbsp;</font> <i class="icon icon-signin" onclick="showQCC();">企查查</i>
+					</div>
+					<!-- 文章属性列表 -->
+					<dl class="dl-inline">
+						<dt>联系人:</dt>
+						<dd id="pageMan">&nbsp;</dd>
+						<dt>联系电话:</dt>
+						<dd id="pagePhone">&nbsp;</dd>
+						<dt>
+							<br>
+						</dt>
+						<dd class="pull-right">
+							<span class="label label-success" id="pageSource">&nbsp;</span> 
+							<span class="label label-primary" id="pageType">&nbsp;</span> 
+							<span class="label label-info" id="pageEmployee">&nbsp;</span>
+						</dd>
+					</dl>
+					<div class="abstract">
+						<p>
+							<b id="pageNeed">客户需求：</b><span>&nbsp;</span>
+						</p>
+						<p>
+							<b id="pageNote">沟通备注：</b><span>&nbsp;</span>
+						</p>
+					</div>
+				</header>
+				<!-- 文章正文部分 -->
+				<!--   <section class="content"> -->
+
+				<!--   </section> -->
+
+			</article>
+
+			<div class="panel panel-primary">
+				<div class="panel-heading">销售反馈</div>
+				<div class="panel-body">
+					
+					<div class="form-group">
+					<label for="fromPK" class="col-sm-1">反馈内容</label>
+					<div class="col-sm-11">
+						<textarea class="form-control" rows="5" id="fromNote"
+							data-toggle="tooltip" title="反馈内容" placeholder="销售反馈内容，必填"></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">合作产品</label>
+					<div id="fromProduct" class="col-sm-11">
+					</div>
+				</div>
+				
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-8">&nbsp;</label>
+						<div  class="col-sm-4" style="margin-top: 6px;">
+							<button id="closeButton" class="btn btn-danger" type="button" onclick="doCloseAction();">关闭商机</button>&nbsp;
+							<button class="btn btn-success" type="button" onclick="doDataCheck();">订单完成</button>&nbsp;
+							<button class="btn btn-primary" type="button" onclick="doDataCheck2()">沟通记录</button>							
+						</div>
+					</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-info">
+			<div class="panel-heading">沟通记录</div>
+		</div>
+		
+		</div>
+	</form>
+
+
+<div id="closeModel" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">温馨提示</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<input type="hidden" id="fromDelID" value="0" />
+					<p id="delTitle">关闭商机操作将不可恢复,请慎重!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button onclick="doCloseBusiness()" type="button"
+						class="btn btn-primary">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+
+	function getClueInfoBack(data){
+		if (data != undefined && data.clueInfo!=undefined && data.clueInfo.cCustomer!=undefined && data.clueInfo.cCustomer.length > 0) {
+			$('#pageName').html(data.clueInfo.cCustomer);
+			$('#pageMan').html(data.clueInfo.cMan);
+			$('#pagePhone').html(data.clueInfo.cPhone);
+			
+			$('#pageSource').html(data.clueInfo.cSource);
+			$('#pageType').html(data.clueInfo.cType);
+			if(data.clueInfo.createdNo!=undefined && data.clueInfo.createdNo.split(',')[1]!=undefined){
+				$('#pageEmployee').html(data.clueInfo.createdNo.split(',')[1]);
+			}else{
+				$('#pageEmployee').html(data.clueInfo.createdNo);
+			}
+			
+			$('#pageNeed').next().html(data.clueInfo.cGoods);
+			$('#pageNote').next().html(data.clueInfo.cNote);
+			$('#frommailNote').val(data.clueInfo.cNote);
+			
+			var goodss = data.clueInfo.cGoods.split(',');
+			var chtml = '';
+			for(var i=0; i<goodss.length; i++){
+				chtml+=("<label class=\"checkbox-inline\"><input type=\"checkbox\" value=\""+goodss[i]+"\">"+goodss[i]+"</label>")
+			}
+			$('#fromProduct').html(chtml);
+			
+		}else{
+			window.location.href="clue_add.html";
+		}
+	}
+	
+	function doCloseAction(){
+		$fromNote = $('#fromNote');
+		if($fromNote.val()==undefined || $fromNote.val().length==0){
+			$fromNote.parent().addClass('has-error');
+			showJLError('请填写反馈内容后重试！');
+			haserror = true;
+		}else{
+			$fromNote.parent().removeClass('has-error');
+			$('#closeModel').modal({
+				keyboard : true,
+				show : true
+			});
+		}
+		
+	}
+	
+	function doCloseBusiness(){
+		var params = {};
+		params.bId = bid;
+		params.bNote = $('#fromNote').val();
+		AVRIL.closeBusiness(params, closeBusinessBack);		
+	}
+	
+	function closeBusinessBack(data){
+		if(data){
+			$('#closeModel').modal('hide');
+			closeWin();
+		}
+		
+	}
+</script>
+</html>

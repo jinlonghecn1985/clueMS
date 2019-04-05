@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.EmployeeMapper">
+
+<!-- Result Map-->
+<resultMap id="EmployeeResultMap" type="com.hnjing.core.model.entity.Employee">
+	<id column="p_id" property="pId"/>
+	<result column="person_name" property="personName"/>
+	<result column="person_mail" property="personMail"/>
+	<result column="person_dep" property="personDep"/>
+	<result column="mail_other" property="mailOther"/>
+	<result column="param1" property="param1"/>
+	<result column="param2" property="param2"/>
+	<result column="person_status" property="personStatus"/>
+	<result column="total_count" property="totalCount"/>
+	
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="created_man" property="createdMan"/>
+	<result column="gmt_modify" property="gmtModify"/>
+	<result column="modify_man" property="modifyMan"/>
+</resultMap>
+
+<sql id="sql_employee_item">
+	p_id, person_name, person_mail, person_dep, mail_other, param1, param2, person_status, total_count, gmt_created, created_man, gmt_modify, modify_man
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_employee_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="employee.pId != null">AND p_id = #{employee.pId} </if>
+		<if test="employee.personName != null">AND ( person_name like concat('%', #{employee.personName}, '%') or person_dep like concat('%', #{employee.personDep}, '%')) </if>
+		<if test="employee.personMail != null">AND person_mail like concat(#{employee.personMail}, '%') </if>
+		<if test="employee.personDep != null">AND person_dep like concat(#{employee.personDep}, '%') </if>
+		<if test="employee.mailOther != null">AND mail_other like concat(#{employee.mailOther}, '%') </if>
+		<if test="employee.param1 != null">AND param1 like concat(#{employee.param1}, '%') </if>
+		<if test="employee.param2 != null">AND param2 like concat(#{employee.param2}, '%') </if>
+		<if test="employee.personStatus != null">AND person_status = #{employee.personStatus} </if>
+		<if test="employee.createdMan != null">AND created_man like concat(#{employee.createdMan}, '%') </if>
+		<if test="employee.modifyMan != null">AND modify_man like concat(#{employee.modifyMan}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 商机候选人 -->
+<insert id="addEmployee" parameterType="com.hnjing.core.model.entity.Employee" >
+	<selectKey keyProperty="pId" order="AFTER" resultType="java.lang.Integer">
+		SELECT LAST_INSERT_ID()
+	</selectKey>
+ 	INSERT INTO tb_employee 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="pId != null"> p_id,</if>
+		<if test="personName != null"> person_name,</if>
+		<if test="personMail != null"> person_mail,</if>
+		<if test="personDep != null"> person_dep,</if>
+		<if test="mailOther != null"> mail_other,</if>
+		<if test="param1 != null"> param1,</if>
+		<if test="param2 != null"> param2,</if>
+		<if test="totalCount != null"> total_count,</if>
+		<if test="personStatus != null"> person_status,</if>
+		gmt_created,
+		<if test="createdMan != null"> created_man,</if>
+		gmt_modify,
+		<if test="modifyMan != null"> modify_man,</if>
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="pId != null"> #{pId},</if>
+		<if test="personName != null"> #{personName},</if>
+		<if test="personMail != null"> #{personMail},</if>
+		<if test="personDep != null"> #{personDep},</if>
+		<if test="mailOther != null"> #{mailOther},</if>
+		<if test="param1 != null"> #{param1},</if>
+		<if test="param2 != null"> #{param2},</if>
+		<if test="totalCount != null"> #{totalCount},</if>
+		<if test="personStatus != null"> #{personStatus},</if>
+		now(),
+		<if test="createdMan != null"> #{createdMan},</if>
+		now(),
+		<if test="modifyMan != null"> #{modifyMan},</if>
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 商机候选人 -->  
+<update id="modifyEmployee" parameterType="com.hnjing.core.model.entity.Employee" >
+  	UPDATE tb_employee SET
+	<trim suffixOverrides=",">
+		<if test="personName != null"> person_name = #{personName},</if>
+		<if test="personMail != null"> person_mail = #{personMail},</if>
+		<if test="personDep != null"> person_dep = #{personDep},</if>
+		<if test="mailOther != null"> mail_other = #{mailOther},</if>
+		<if test="param1 != null"> param1 = #{param1},</if>
+		<if test="param2 != null"> param2 = #{param2},</if>
+		<if test="totalCount != null"> total_count=#{totalCount},</if>
+		<if test="personStatus != null"> person_status = #{personStatus},</if>
+		gmt_modify = now(),
+		<if test="modifyMan != null"> modify_man = #{modifyMan},</if>
+	</trim>
+	WHERE p_id = #{pId}
+</update>
+
+
+<update id="modifyEmployeeTotalZero" >
+  	UPDATE tb_employee SET total_count=0
+</update>
+ 
+ 
+<!-- 删除 商机候选人 -->
+<delete id="dropEmployeeByPId" parameterType="java.lang.Integer">
+	DELETE FROM tb_employee WHERE p_id = #{pId}
+</delete> 
+
+<!-- 根据标识查询 商机候选人 -->
+<select id="queryEmployeeByPId"  resultMap="EmployeeResultMap" parameterType="java.lang.Integer">
+	SELECT 
+	<include refid="sql_employee_item"/>
+	FROM tb_employee WHERE p_id = #{pId}
+</select>
+
+<!-- 根据属性查询商机候选人 -->
+<select id="queryEmployeeByProperty"  resultMap="EmployeeResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_employee_item"/>
+	FROM tb_employee 
+	<where>
+		<include refid="sql_employee_query_nowhere"/>
+	</where>
+	order by total_count asc, gmt_modify asc
+</select>
+
+<!-- 根据商机候选人属性与分页信息分页查询商机候选人信息 -->
+<select id="queryEmployeeForPage"  resultMap="EmployeeResultMap" > 
+	SELECT 
+	<include refid="sql_employee_item"/>
+	FROM tb_employee 
+	<where>
+		<include refid="sql_employee_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

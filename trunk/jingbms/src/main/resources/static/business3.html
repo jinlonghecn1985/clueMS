@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- ZUI 扩展 JavaScript 文件 -->
+<script src="./lib/selectable/zui.selectable.min.js"></script>
+
+<style type="text/css">
+.elehidden {
+	display: none;
+}
+
+#selectableExample1>.tile.active {
+	background: #3280fc;
+	color: #fff;
+}
+
+.icon-plus {
+	color: #38b03f;
+}
+
+#selectableExample1>.tile {
+	text-align: center;
+	padding: 15px 0;
+	background-color: #e5e5e5;
+	margin: 10px;
+	float: left;
+	width: 70px;
+	height: 48px;
+	font-size: 13px;
+}
+.form-group {
+    margin-bottom: 5px;
+}
+hr {
+    margin-top: 10px;
+    margin-bottom: 10px;
+   }
+</style>
+
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				console.log('你选取了方块 # 个。');
+				$('#selectableExample1').selectable(
+						{
+							selector : '.tile',
+							clickBehavior : 'multi',
+							select : function(e) {
+								console.log('你选取了方块 #' + e.id + '，共选择了 '
+										+ e.selected.length + ' 个。');
+							}
+						});
+			});
+</script>
+
+</head>
+
+<body style="overflow: scroll; overflow-x: hidden; overflow-y: auto">
+	<form class="form-horizontal">
+		<div class="container-fixed">
+
+			<h4>
+				<i class="icon-flag"></i>&nbsp;线索信息
+			</h4>
+			<hr>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">信息来源</label>
+				<div class="col-sm-11">
+					<label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;EJing
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;轩辕
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;AI
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;ERP
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;邮件
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;其它
+					</label>
+				</div>
+			</div>
+<!-- 			<div class="form-group" style="visibility:hidden; height:0px;"> -->
+<!-- 				<label for="fromPK" class="col-sm-1">提供人员</label> -->
+<!-- 				<div class="col-sm-5"> -->
+<!-- 					<input type="text" class="form-control" id="fromCode" -->
+<!-- 						data-toggle="tooltip" title="提供人员" placeholder="商机提供人员，选项"> -->
+<!-- 				</div> -->
+<!-- 				<label for="fromPK" class="col-sm-1">归属部门</label> -->
+<!-- 				<div class="col-sm-5"> -->
+<!-- 					<input type="text" class="form-control" id="fromCode" -->
+<!-- 						data-toggle="tooltip" title="归属部门" -->
+<!-- 						placeholder="商机提供部门或提供人员归属部门,必填"> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">联系电话</label>
+				<div class="col-sm-5">
+					<div class="input-group">
+					<input type="text" class="form-control" id="fromCode"
+						data-toggle="tooltip" title="客户联系电话" placeholder="客户联系电话，必填">
+					<span class="input-group-addon"><i class="icon icon-check"></i></span>
+					</div>
+				</div>
+				<label for="fromPK" class="col-sm-1">联系人员</label>
+				<div class="col-sm-5">
+					<input type="text" class="form-control" id="fromCode"
+						data-toggle="tooltip" title="客户联系人员" placeholder="客户联系人员,必填">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">客户备注</label>
+				<div class="col-sm-11">
+					<textarea class="form-control" rows="2" id="fromwhite"
+						data-toggle="tooltip" title="客户或伙伴说明"
+						placeholder="商机获取时客户或伙伴说明，选填"></textarea>
+				</div>
+			</div>
+
+			<h4>
+				<i class="icon-flag"></i>&nbsp;沟通意向
+			</h4>
+			<hr>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">咨询方式</label>
+				<div class="col-sm-11">
+					<label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;百度商桥
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;400电话
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;来电咨询
+					</label><label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;去电咨询
+					</label><label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;内部转接
+					</label><label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;企业QQ
+					</label><label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;直达商机
+					</label> 
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">线索情况</label>
+				<div class="col-sm-5">
+					<label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;商机
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;线索
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;无效咨询
+					</label> <label class="checkbox-inline"> <input type="radio"
+						name="formSource">&nbsp;禁止合作
+					</label>
+				</div>
+				<label for="fromPK" class="col-sm-1">精细分类</label>
+				<div class="col-sm-5">
+					<select class="form-control" id="exampleInputAddress1">
+						<option>执照办理中</option>
+						<option>用户忙/未接电话</option>
+						<option>以后再联系</option>
+						<option>内部转接</option>
+						<option>企业QQ</option>
+					</select>
+				</div>				
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">企业名称</label>
+				<div class="col-sm-11">
+					<input type="text" class="form-control" id="fromCode"
+						data-toggle="tooltip" title="企业名称"
+						placeholder="请核准客户企业名称后填写，提交商机时必填，放弃时选填。">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">意向产品</label>
+<!-- 				<div class="col-sm-1"> -->
+<!-- 					<label for="fromPK">意向产品</label> -->
+<!-- 				</div><i class="col-sm-1 icon icon-plus">意向产品</i> -->
+				<div class="col-sm-11">
+					<div class="clearfix selectable-example example"
+						id="selectableExample1">
+						<div class="tile slectable-item" data-id="百度推广">百度推广</div>
+						<div class="tile" data-id="信息流">信息流</div>
+						<div class="tile" data-id="直通车">直通车</div>
+						<div class="tile" data-id="网站">网站</div>
+						<div class="tile" data-id="微信小程序">微信小程序</div>
+						<div class="tile" data-id="微信公众号">微信公众号</div>
+						<div class="tile" data-id="SEO优化">SEO优化</div>
+						<div class="tile" data-id="企业邮箱">企业邮箱</div>
+						<div class="tile" data-id="整合营销">整合营销</div>
+						<div class="tile" data-id="品牌推广">品牌推广</div>
+						<div class="tile" data-id="品牌专区">品牌专区</div>
+						<div class="tile" data-id="SEM">SEM</div>
+						<div class="tile" data-id="400">400</div>
+						<div class="tile" data-id="企业名片">企业名片</div>
+						<div class="tile" data-id="托管">托管</div>
+						<div class="tile" data-id="搜索">搜索</div>
+						<div class="tile" data-id="微信开发">微信开发</div>
+						<div class="tile" data-id="SE0">SE0</div>
+						<div class="tile" data-id="威脉">威脉</div>
+						<div class="tile" data-id="聚屏百意">聚屏百意</div>
+						<div class="tile" data-id="品牌起跑线">品牌起跑线</div>
+						<div class="tile" data-id="IDC产品">IDC产品</div>
+						<div class="tile" data-id="众盟直投">众盟直投</div>
+						<div class="tile" data-id="百聘">百聘</div>
+						<div class="tile" data-id="文库">文库</div>
+						<div class="tile" data-id="域名">域名</div>
+
+					</div>
+				</div>
+				<br />
+				<br />
+				<br />
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">商机备注</label>
+					<div class="col-sm-11">
+						<textarea class="form-control" rows="2" id="fromwhite"
+							data-toggle="tooltip" title="商机备注" placeholder="商机人员与客户沟通信息，必填"></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-9">&nbsp;</label>
+					<div class="col-sm-3">						
+						<button class="btn btn-primary" type="button">数据保存</button>
+					</div>
+				</div>
+
+
+				<h4>
+					<i class="icon-flag"></i>&nbsp;商机核查
+				</h4>
+				<hr>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">营业执照</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="营业执照"
+							placeholder="营业执照号信用代码，提交商机时尾款，放弃时选填。">
+					</div>
+					<label for="fromPK" class="col-sm-1">所属行业</label>
+					<div class="col-sm-5">
+						<select class="form-control" id="exampleInputAddress1">
+							<option>服务类(商务)</option>
+							<option>服务类(生活)</option>
+							<option>医疗</option>
+							<option>工业</option>
+							<option>农业</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">归属城市</label>
+					<div class="col-sm-5">
+						<select class="form-control" id="exampleInputAddress1">
+							<option>长沙市</option>
+							<option>株洲市</option>
+							<option>湘潭市</option>
+							<option>常德市</option>
+							<option>张家界市</option>
+							<option>岳阳市</option>
+							<option>益阳市</option>
+							<option>郴州市</option>
+							<option>衡阳市</option>
+							<option>怀化市</option>
+							<option>湘西土家族苗族自治州</option>
+							<option>邵阳市</option>
+							<option>永州市</option>
+							<option>娄底市</option>
+						</select>
+					</div>
+					<label for="fromPK" class="col-sm-1">沟通方式</label>
+					<div class="col-sm-5">
+						<select class="form-control" id="exampleInputAddress1">
+							<option>电话联系</option>
+							<option>百度商桥</option>
+							<option>直达商机</option>
+							<option>来电咨询</option>
+							<option>内部转接</option>
+							<option>企业QQ</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">企业号码</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="企业号码"
+							placeholder="ERP新建或查询到企业后回填企业标识，必填">
+					</div>
+					<label for="fromPK" class="col-sm-1">客户类型</label>
+					<div class="col-sm-5">
+						<label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;新客户
+						</label> <label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;老客户
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">库内商机</label>
+					<div class="col-sm-5">
+						<label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;库内
+						</label> <label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;库外
+						</label>
+					</div>
+					<label for="fromPK" class="col-sm-1">商机判定</label>
+					<div class="col-sm-5">
+						<label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;有效商机
+						</label> <label class="checkbox-inline"> <input type="radio"
+							name="formSource">&nbsp;商机信息
+						</label>
+					</div>
+				</div>
+
+				<h4>
+					<i class="icon-flag"></i>&nbsp;商机下发
+				</h4>
+				<hr>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">一级部门</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="一级部门" placeholder="商机接收人所在一级部门，必填">
+					</div>
+					<label for="fromPK" class="col-sm-1">二级部门</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="二级部门" placeholder="商机接收人所在二级部门，必填">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">跟进伙伴</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="跟进伙伴姓名" placeholder="跟进伙伴姓名，必填">
+					</div>
+					<label for="fromPK" class="col-sm-1">伙伴工号</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="跟进伙伴工号" placeholder="跟进伙伴工号，建议填写">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">伙伴邮箱</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="伙伴邮箱" placeholder="跟进伙伴邮箱地址，发送邮件时必填">
+					</div>
+					<label for="fromPK" class="col-sm-1">抄送邮箱</label>
+					<div class="col-sm-5">
+						<input type="text" class="form-control" id="fromCode"
+							data-toggle="tooltip" title="抄送邮箱" placeholder="邮件抄送地址，发送邮件时选填">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">邮件备注</label>
+					<div class="col-sm-11">
+						<textarea class="form-control" rows="2" id="fromwhite"
+							data-toggle="tooltip" title="邮件备注" placeholder="邮件内容备注，发送邮件时必填"></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-9">&nbsp;</label>
+					<div class="col-sm-3">
+						<button class="btn btn-success" type="button">邮件发送</button>
+						<button class="btn btn-primary" type="button">核查保存</button>
+					</div>
+				</div>
+				<h4>
+					<i class="icon-flag"></i>&nbsp;销售反馈
+				</h4>
+				<hr>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">反馈内容</label>
+					<div class="col-sm-11">
+						<textarea class="form-control" rows="5" id="fromwhite"
+							data-toggle="tooltip" title="反馈内容" placeholder="销售反馈内容，必填"></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="fromPK" class="col-sm-1">合作产品</label>
+					<div class="col-sm-11">
+						<label class="checkbox-inline"><input type="checkbox">百度推广</label>
+						<label class="checkbox-inline"><input type="checkbox">信息流</label>
+						<label class="checkbox-inline"><input type="checkbox">网站</label>
+					</div>
+					<br />
+					<br />
+					<br />
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-9">&nbsp;</label>
+						<div class="col-sm-3">
+							<button class="btn btn-success" type="button">沟通记录</button>
+							<button class="btn btn-primary" type="button">完成订单</button>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">历史反馈</label>
+						<div class="col-sm-11">
+							<div class="comment">
+								<div class="content">
+									<div class="pull-right text-muted">2019-03-13 15:24:24</div>
+									<div>
+										<a href="###"><strong>刘军</strong></a> <span class="text-muted">回复</span>
+										<a href="###">黄依芙</a>
+									</div>
+									<div class="text">已经进行电话沟通，客户询问相关价格，待跟进...</div>
+								</div>
+							</div>
+
+
+							<div class="comment">
+								<div class="content">
+									<div class="pull-right text-muted">2019-03-12 09:24:24</div>
+									<div>
+										<a href="###"><strong>刘军</strong></a> <span class="text-muted">回复</span>
+										<a href="###">黄依芙</a>
+									</div>
+									<div class="text">客户属于失效老客户，长沙有两个营业执照，一个资质存在工商行政违规，广审即将到期；客户另外执照无医疗执业许可证，且不准备办理；客户周一会去办理广告审查证明，届时再对接开户事宜...</div>
+								</div>
+							</div>
+
+
+							<div class="comment">
+								<div class="content">
+									<div class="pull-right text-muted">2019-03-12 09:14:24</div>
+									<div>
+										<a href="###"><strong>黄依芙</strong></a> <span
+											class="text-muted">邮件</span> <a href="###">刘军</a>
+									</div>
+									<div class="text">明确推广意向,客户咨询产品的收费。请尽快联系客户...</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+			</div>
+	</form>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css"> 
+.elehidden{display: none;}
+</style> 	
+	<script type="text/javascript">		
+	var pagenum = 1;
+	var pagesize = 15;
+	var searchWord = "";
+
+	$(document).ready(function() {
+		$('#searchKeyWord').bind('keypress', function(event) {
+			if (event.keyCode == 13) {
+				doSearchAction2();
+			}
+		});
+		reloadData();
+	});
+
+function loadPersionListBack(data){	
+	if(data!=undefined && data.page!=undefined){
+		if(data.data!=undefined && data.data.length>0){
+			var ihtml = "";
+			for(var i=0; i<data.data.length; i++){
+
+				ihtml+=("<div class=\"item\">"
+						+"    <div class=\"item-heading\">"
+																
+						+"      <h4>"+(data.page.startRow+i)+"&nbsp;&nbsp;"+(data.data[i].titile)+"</h4>"
+						+"      "+data.data[i].sendTo+"</a>"
+						+"    </div>"
+						+"    <div class=\"item-content\">"+data.data[i].content+"</div>"
+						+"    <div class=\"item-footer\">"
+						+"     <span class=\"text-muted\">"+data.data[i].gmtCreated+"</span>"
+						+"    </div>"
+						+" </div>");
+						
+			}	 		
+			$("#persionTable").html(ihtml);
+			AVRIL.initPageBar(data.page);
+			return;		
+	}}
+	AVRIL.initPageBar(null);
+	$("#persionTable").html('<div class=\"item\"><font color=\"red\">没有查询到数据。</font></div>');
+	
+}
+
+function doSearchAction2(){
+	searchWord = $('#searchKeyWord').val();
+	pagenum = 1;
+	reloadData();
+}
+
+
+function reloadData(){	
+	AVRIL.loadMailList(loadPersionListBack, pagenum, pagesize, searchWord);	
+}
+function goPage(pn){
+	pagenum = pn;
+	reloadData();
+}
+
+</script>
+
+</head>
+
+<body  style="overflow: scroll;overflow-x:hidden">
+<div class="row">
+		<div class="col-xs-0 col-sm-1 col-md-2 col-lg-3"></div>
+		<div class="input-group col-xs-12 col-sm-10 col-md-8 col-lg-6">
+			<input type="text" id="searchKeyWord" class="form-control"
+				placeholder="收件邮箱或邮件内容查询"> <span class="input-group-addon"
+				onclick="doSearchAction2();"><i class="icon icon-cloud">查询</i></span>
+		</div>
+</div>
+<footer style="float:right;  margin-top: -9px;margin-bottom: -10px;">
+	<ul class="pager"></ul>	
+</footer>
+<div class="items col-xs-12 col-sm-12 col-md-12 col-lg-12" id="persionTable">
+  
+</div>	
+<footer style="float:right; ">
+	<ul class="pager"></ul>	
+</footer>
+</body>
+</html>

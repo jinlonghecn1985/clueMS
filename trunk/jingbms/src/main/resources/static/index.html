@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css">
+* {
+	margin: 0;
+	padding: 0;
+}
+
+</style>
+<script type="text/javascript">
+var token = '';
+$(document).ready(function() {
+	token = getQueryStringByName('t');
+	if(token!=undefined && token.length>0){
+		window.location.href="login.html?t="+token;
+	}else{
+		window.location.href="login.html";
+	}
+	
+});
+</script>
+</head>
+
+<body>
+</body>
+</html>

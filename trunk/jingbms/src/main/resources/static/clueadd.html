@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- ZUI 扩展 JavaScript 文件 -->
+<script src="./lib/selectable/zui.selectable.min.js"></script>
+<!-- 自定义业务 JavaScript 文件 -->
+<script src="avril.js"></script>
+<style type="text/css">
+#selectableExample1>.tile.active {
+	background: #3280fc;
+	color: #fff;
+}
+
+.icon-plus {
+	color: #38b03f;
+}
+
+#selectableExample1>.tile {
+	text-align: center;
+	padding: 6px 0;
+	background-color: #e5e5e5;
+	margin: 8px;
+	float: left;
+	width: 70px;
+	height: 32px;
+	font-size: 13px;
+}
+
+.form-group {
+	margin-bottom: 5px;
+}
+
+hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+</style>
+
+<script type="text/javascript">
+	var cid = getQueryStringByName('cid');
+	var hasp = getQueryStringByName('p');
+	$(document).ready(			
+			function() {
+				if(cid!=undefined && cid.length>0){
+					window.location.href ="clueadd2.html?cid="+cid+"&p="+hasp;	
+				}
+				if(hasp!=undefined && hasp=='12'){
+					$('#closeButton').before('<button class="btn" id="closeParent" type="button" onclick="closeWin();" >关闭窗口</button>&nbsp;');
+				}				
+				//加载配置项
+				AVRIL.getDictionaryByGroup('clueSource', getClueSourceByDicBack);
+				AVRIL.getDictionaryByGroup('clueType', getClueTypeByDicBack);
+				AVRIL.getDictionaryByGroup('clueStatus', getClueStatusByDicBack);
+				AVRIL.getDictionaryByGroup('clueGoods', getClueGoodsByDicBack);
+				AVRIL.getDictionaryByGroup('clueArea', getClueAreaByDicBack);
+				
+				
+				
+				$('#selectableExample1').selectable(
+						{
+							selector : '.tile',
+							clickBehavior : 'multi',
+							finish : function(data){
+								var ck = "";
+								for(var j=0; j<data.selected.length; j++){
+									ck+=((ck.length==0?"":",")+data.selected[j]);
+								}
+								$('#fromclueGoods').val(ck);
+							}
+						}
+				);
+			}
+	);
+	
+	function doSaveCheck(){
+		var haserror = false;
+		
+		$clueSource = $('input[name="clueSource"]:checked');
+		//alert($clueSource.val()+"  "+$clueSource[0].nextSibling.nodeValue);		
+		var clueSource = $clueSource[0].nextSibling.nodeValue;
+		if(clueSource==undefined || clueSource.length==0){
+			$("#fromClueSource").addClass('has-error');
+			showJLError('请选择线索来源后重试！');
+			haserror = true;
+		}else{
+			$("#fromClueSource").removeClass('has-error');
+		}
+		
+		$fromDepartment = $('#fromDepartment');
+		if($fromDepartment.html()!=undefined){
+			if($fromDepartment.val()==undefined || $fromDepartment.val().length==0){
+				$fromDepartment.parent().addClass('has-error');
+				showJLError('线索提供的部门必须填写，请填写后重试！');
+				haserror = true;
+			}else{
+				$fromDepartment.parent().removeClass('has-error');
+			}
+		}
+		
+		$fromEmployee = $('#fromEmployee');
+		if($fromEmployee.html()!=undefined){
+			if($fromEmployee.val()==undefined || $fromEmployee.val().length==0){
+				$fromEmployee.parent().addClass('has-error');
+				showJLError('线索提供人员姓名必须填写，请填写后重试！');
+				haserror = true;
+			}else{
+				$fromEmployee.parent().removeClass('has-error');
+			}
+		}
+		
+		$fromCluePhone = $("#fromCluePhone");
+		if($fromCluePhone.val()==undefined || $fromCluePhone.val().length==0){
+			$fromCluePhone.parent().addClass('has-error');
+			showJLError('客户联系人电话必须填写，请填写后重试！');
+			haserror = true;
+		}else{
+			$fromCluePhone.parent().removeClass('has-error');
+		}
+		
+		$fromClueMan = $("#fromClueMan");
+		if($fromClueMan.val()==undefined || $fromClueMan.val().length==0){
+			$fromClueMan.parent().addClass('has-error');
+			showJLError('客户联系人姓名必须填写，请填写后重试！');
+			haserror = true;
+		}else{
+			$fromClueMan.parent().removeClass('has-error');
+		}
+		
+		var fromArea = $("select[name='fromArea'] option:checked").text();
+		if(fromArea==undefined || fromArea.length==0){
+			$("#fromArea").parent().addClass('has-error');
+			showJLError('请选择归属城市后重试！');
+			haserror = true;
+		}else{
+			$("#fromArea").parent().removeClass('has-error');
+		}
+		
+		var clueType = $('input[name="clueType"]:checked').val();
+		if(clueType==undefined || clueType.length==0){
+			$("#fromClueType").addClass('has-error');
+			showJLError('请选择咨询方式后重试！');
+			haserror = true;
+		}else{
+			$("#fromClueType").removeClass('has-error');
+		}
+		
+		var clueStatus = $('input[name="clueStatus"]:checked').val();
+		var clueStatusName = $('input[name="clueStatus"]:checked')[0].nextSibling.nodeValue;
+		if(clueStatus==undefined || clueStatus.length==0){
+			$("#fromClueStatus").addClass('has-error');
+			showJLError('请进行线索判定后重试！');
+			haserror = true;
+		}else{
+			$("#fromClueStatus").removeClass('has-error');
+		}
+		
+		$fromCustomer = $('#fromCustomer');
+		$fromclueGoods = $('#fromclueGoods');
+		if(clueStatus.length==7){
+			//必须有企业信息和产品意向			
+			if($fromCustomer.val()==undefined || $fromCustomer.val().length==0){
+				$fromCustomer.parent().addClass('has-error');
+				showJLError('必须填写企业名称，请填写后重试！');
+				haserror = true;
+			}else{
+				$fromCustomer.parent().removeClass('has-error');
+			}
+			
+			if($fromclueGoods.val()==undefined || $fromclueGoods.val().length==0){
+				showJLError('必须选择意向产品，请选择后重试！');
+				haserror = true;
+			}
+		}else{
+			$fromCustomer.parent().removeClass('has-error');
+		}
+		
+		$fromNote = $('#fromNote');
+		if($fromNote.val()==undefined || $fromNote.val().length==0){
+			$fromNote.parent().addClass('has-error');
+			showJLError('必须沟通备注，请填写后重试！');
+			haserror = true;
+		}else{
+			$fromNote.parent().removeClass('has-error');
+		}
+		
+		var ressoin =  $("select[name='fromReason'] option:checked").text();
+		if(ressoin==undefined || ressoin.length==0){
+			$('#fromReason').parent().addClass('has-error');
+			showJLError('必须选择判定补充，请选择后重试！');
+			haserror = true;
+		}else{
+			$('#fromReason').parent().removeClass('has-error');
+		}
+		
+		
+		
+		if(!haserror){
+			var obj = {};
+			obj.ccity='待补充';
+			obj.ccustomer=$fromCustomer.val();
+			obj.cgoods=$fromclueGoods.val();
+			obj.cman=$fromClueMan.val();
+			obj.cmessage=$('#fromMessage').val();
+			obj.cnote=$fromNote.val();
+			obj.cphone=$fromCluePhone.val();
+			obj.creason=ressoin;
+			obj.csource=clueSource;
+			obj.cCity = fromArea;
+			obj.cstatus=clueStatus+','+clueStatusName;
+			obj.ctype=clueType;
+			if($fromDepartment.html()!=undefined){
+				obj.department= $fromDepartment.val();
+			}
+			if($fromEmployee.html()!=undefined){
+				obj.employee= $fromEmployee.val();
+			}
+			AVRIL.saveClueInfo(obj, saveClueInfoBack);
+	
+		}
+	}
+	
+	function saveClueInfoBack(data){
+		if(data!=undefined && data.cId!=undefined){
+			showJLSuccess('添加线索成功！');
+			closeWin();
+		}
+		
+	}
+	
+	function reloadLevel(dic){
+		AVRIL.getDictionaryByGroup(dic, getReloadLevelByDicBack);
+	}
+	
+	function checkSource(data){
+		$fromSelf = $('#fromSelf');
+		if(data!=undefined && data.length>1){
+			if($fromSelf==undefined || $fromSelf.html()==undefined){
+				$('#divSource').after('<div id=\"fromSelf\" class=\"form-group\"> <label for=\"fromPK\" class=\"col-sm-1\">来源部门</label> <div class=\"col-sm-5\"> <input type=\"text\" class=\"form-control\" id=\"fromDepartment\" data-toggle=\"tooltip\" title=\"来源部门\" placeholder=\"线索提供人员所在部门，必填\"> </div> <label for=\"fromPK\" class=\"col-sm-1\">提供人员</label> <div class=\"col-sm-5\"> <input type=\"text\" class=\"form-control\" id=\"fromEmployee\" data-toggle=\"tooltip\" title=\"提供人员\" placeholder=\"线索提供人员姓名,必填\"> </div> </div>');
+			}
+		}else{
+			if($fromSelf!=undefined){
+				$('#fromSelf').remove();
+			}			
+		}
+	}
+	
+	function closeWin(){	
+		if(parent){
+			parent.window.hiddenClueModal();
+		}
+	}
+	
+	function showQCC(){
+		window.open("https://www.qichacha.com/search?key="+$('#fromCustomer').val()); 
+	}
+	
+	
+	
+</script>
+
+</head>
+
+<body style="overflow: scroll; overflow-x: hidden; overflow-y: auto">
+	<form class="form-horizontal">
+		<input type="hidden" id="fromclueGoods" value=""/>
+		<div class="container-fixed">
+
+		
+			<div id="divSource" class="form-group" >
+				<label for="fromPK" class="col-sm-1">信息来源</label>
+				<div id="fromClueSource" class="col-sm-11">
+				</div>
+			</div>
+			<!-- 			<div class="form-group" style="visibility:hidden; height:0px;"> -->
+			<!-- 				<label for="fromPK" class="col-sm-1">提供人员</label> -->
+			<!-- 				<div class="col-sm-5"> -->
+			<!-- 					<input type="text" class="form-control" id="fromCode" -->
+			<!-- 						data-toggle="tooltip" title="提供人员" placeholder="商机提供人员，选项"> -->
+			<!-- 				</div> -->
+			<!-- 				<label for="fromPK" class="col-sm-1">归属部门</label> -->
+			<!-- 				<div class="col-sm-5"> -->
+			<!-- 					<input type="text" class="form-control" id="fromCode" -->
+			<!-- 						data-toggle="tooltip" title="归属部门" -->
+			<!-- 						placeholder="商机提供部门或提供人员归属部门,必填"> -->
+			<!-- 				</div> -->
+			<!-- 			</div> -->
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">联系电话</label>
+				<div class="col-sm-5">
+					<div class="input-group">
+						<input type="text" class="form-control" id="fromCluePhone"
+							data-toggle="tooltip" title="客户联系电话" placeholder="客户联系电话，必填">
+						<span class="input-group-addon"><i class="icon icon-check"></i></span>
+					</div>
+				</div>
+				<label for="fromPK" class="col-sm-1">联系人员</label>
+				<div class="col-sm-5">
+					<input type="text" class="form-control" id="fromClueMan"
+						data-toggle="tooltip" title="客户联系人员" placeholder="客户联系人员,必填">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">归属城市</label>
+				<div class="col-sm-5">
+					<select class="form-control" id="fromArea" name="fromArea">
+					</select>
+				</div>
+
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">线索备注</label>
+				<div class="col-sm-11">
+					<textarea class="form-control" rows="2" id="fromMessage"
+						data-toggle="tooltip" title="客户或伙伴说明"
+						placeholder="商机获取时客户或伙伴说明，选填"></textarea>
+				</div>
+			</div>
+
+			
+			<hr>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">咨询方式</label>
+				<div id="fromClueType" class="col-sm-11">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">线索判定</label>
+				<div id="fromClueStatus" class="col-sm-5">
+				</div>
+				<label for="fromPK" class="col-sm-1">判定补充</label>
+				<div class="col-sm-5">
+					<select class="form-control" id="fromReason" name="fromReason">
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">企业名称</label>
+				<div class="col-sm-11">
+					<div class="input-group">
+						<input type="text" class="form-control" id="fromCustomer"
+							data-toggle="tooltip" title="企业名称"
+							placeholder="请核准客户企业名称后填写，提交商机时必填，放弃时选填。"><span
+							class="input-group-addon" onclick="showQCC();"><i
+							class="icon icon-cloud">企查查</i></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">意向产品</label>
+				<!-- 				<div class="col-sm-1"> -->
+				<!-- 					<label for="fromPK">意向产品</label> -->
+				<!-- 				</div><i class="col-sm-1 icon icon-plus">意向产品</i> -->
+				<div class="col-sm-11">
+					<div class="clearfix selectable-example example"
+						id="selectableExample1">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="fromPK" class="col-sm-1">沟通备注</label>
+				<div class="col-sm-11">
+					<textarea class="form-control" rows="2" id="fromNote"
+						data-toggle="tooltip" title="沟通备注" placeholder="与客户联系人沟通信息，必填"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+					<label for="fromPK" class="col-sm-9">&nbsp;</label>
+					<div class="col-sm-3">						
+						<button class="btn btn-primary" type="button" id="closeButton" onclick="doSaveCheck();">数据保存</button>
+					</div>
+				</div>
+
+
+			</div>
+	</form>
+
+</body>
+<script type="text/javascript">
+
+function getClueSourceByDicBack(data){
+	var rhtml = "";
+	if(data!=undefined && data.length>0){
+		for(var i=0; i<data.length; i++){
+			rhtml+= ("<label onclick=\"checkSource('"+data[i].dicCode+"')\" class=\"checkbox-inline checkbox\"> <input type=\"radio\" name=\""+data[i].dicGroup+"\" value=\""+data[i].dicCode+"\" "+(i==0?"checked=\"checked\"":"")+">"+data[i].dicValue+"</label>");
+		}
+		$("#fromClueSource").html(rhtml);
+	}
+}
+
+function getClueTypeByDicBack(data){
+	var rhtml = "";
+	if(data!=undefined && data.length>0){
+		for(var i=0; i<data.length; i++){
+			rhtml+= ("<label class=\"checkbox-inline\"> <input type=\"radio\" name=\""+data[i].dicGroup+"\" value=\""+data[i].dicValue+"\" "+(i==0?"checked=\"checked\"":"")+">"+data[i].dicValue+"</label>");
+		}
+		$("#fromClueType").html(rhtml);
+	}
+}
+
+function getClueStatusByDicBack(data){
+	var rhtml = "";
+	if(data!=undefined && data.length>0){
+		for(var i=0; i<data.length; i++){
+			if(i==0){
+				reloadLevel(data[i].dicCode, getReloadLevelByDicBack);
+			}
+			rhtml+= ("<label onclick=\"reloadLevel('"+data[i].dicCode+"')\" class=\"checkbox-inline\"> <input type=\"radio\" name=\""+data[i].dicGroup+"\" value=\""+data[i].dicCode+"\" "+(i==0?"checked=\"checked\"":"")+">"+data[i].dicValue+"</label>");
+		}
+		$("#fromClueStatus").html(rhtml);
+	}
+}
+
+function getClueAreaByDicBack(data) {
+	var rhtml = "";
+	if (data != undefined && data.length > 0) {
+		for (var i = 0; i < data.length; i++) {
+			rhtml += ("<option value=\""+data[i].dicCode+"\">" + data[i].dicValue + "</option>");
+		}
+		$("#fromArea").html(rhtml);
+	}
+}
+
+function getClueGoodsByDicBack(data){
+	var rhtml = "";
+	if(data!=undefined && data.length>0){
+		for(var i=0; i<data.length; i++){				
+			rhtml+= ("<div class=\"tile\" data-id=\""+data[i].dicValue+"\">"+data[i].dicValue+"</div>");
+		}
+		$("#selectableExample1").html(rhtml);
+	}
+}
+
+function getReloadLevelByDicBack(data){
+	var rhtml = "";
+	$("#fromReason").html(rhtml);
+	if(data!=undefined && data.length>0){
+		for(var i=0; i<data.length; i++){			
+			rhtml+= ("<option>"+data[i].dicValue+"</option>");
+		}
+		$("#fromReason").html(rhtml);
+	}
+}
+</script>
+</html>

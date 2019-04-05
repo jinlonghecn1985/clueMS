@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- ZUI 扩展 JavaScript 文件 -->
+<script src="./lib/selectable/zui.selectable.min.js"></script>
+<!-- 自定义业务 JavaScript 文件 -->
+<script src="avril.js"></script>
+<style type="text/css">
+.elehidden {
+	display: none;
+}
+
+#selectableExample1>.tile.active {
+	background: #3280fc;
+	color: #fff;
+}
+
+.icon-plus {
+	color: #38b03f;
+}
+
+#selectableExample1>.tile {
+	text-align: center;
+	padding: 15px 0;
+	background-color: #e5e5e5;
+	margin: 10px;
+	float: left;
+	width: 70px;
+	height: 48px;
+	font-size: 13px;
+}
+
+.form-group {
+	margin-bottom: 5px;
+}
+hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.titlediv{
+font-family: "Helvetica Neue",Helvetica,Tahoma,Arial,'Microsoft Yahei','PingFang SC','Hiragino Sans GB','WenQuanYi Micro Hei',sans-serif;
+font-weight: 700;
+font-size: 26px;
+line-height: 1.5;
+margin-bottom: 10px;
+margin-top: 10px;
+}
+</style>
+
+<script type="text/javascript">
+	var bid;
+	var hasClose = '';
+	var selectCity='';
+	$(document).ready(function() {
+		bid = getQueryStringByName('bid');
+		hasClose = getQueryStringByName('p');
+		if(hasClose!=undefined && hasClose=='12'){
+			$('#closeButton').before('<button class="btn" id="closeParent" type="button" onclick="closeWin();">关闭窗口</button>&nbsp;');
+		}else{
+			alert(hasClose);
+		}
+		
+		if(bid==undefined || bid.length==0){
+// 			window.location.href="clue_add.html";
+		}
+		
+		AVRIL.getBusinessInfo(bid, getClueInfoBack);
+		
+		//加载配置项
+		AVRIL.getEmployeeList(getEmployeeListBack);
+		AVRIL.getDictionaryByGroup('clueIndustry', getClueIndustryByDicBack);
+		AVRIL.getDictionaryByGroup('clueArea', getClueAreaByDicBack);
+
+		$('#selectableExample1').selectable({
+			selector : '.tile',
+			clickBehavior : 'single',
+			finish : function(data) {
+				var ck = "";
+				for (var j = 0; j < data.selected.length; j++) {
+					ck = data.selected[j];
+				}
+				$('#fromEmployee').val(ck);
+			}
+		});
+	});
+	
+	
+	function doDataCheck(){		
+		var haserror = false;
+		$formSJType = $('input[name="formSJType"]:checked');
+		//alert($clueSource.val()+"  "+$clueSource[0].nextSibling.nodeValue);		
+// 		var formSJType = $formSJType[0].nextSibling.nodeValue;
+		if($formSJType==undefined || $formSJType.val().length==0){
+			$('#divSJType').addClass('has-error');
+			showJLError('请选择商机判定后重试！');
+			haserror = true;
+		}else{			
+			$('#divSJType').removeClass('has-error');
+		}
+		
+		var fromArea = $("select[name='fromArea'] option:checked").text();
+		if(fromArea==undefined || fromArea.length==0){
+			$("#fromArea").parent().addClass('has-error');
+			showJLError('请选择归属城市后重试！');
+			haserror = true;
+		}else{
+			$("#fromArea").parent().removeClass('has-error');
+		}
+		
+		$formSJIn = $('input[name="formSJIn"]:checked');
+		if($formSJIn==undefined || $formSJIn.val().length==0){
+			$('#divSJIn').addClass('has-error');
+			showJLError('请选择商机是否已入库后重试！');
+			haserror = true;
+		}else{			
+			$('#divSJIn').removeClass('has-error');
+		}
+		
+		$fromNew = $('input[name="fromNew"]:checked');
+		if($fromNew==undefined || $fromNew.val().length==0){
+			$('#divSJNew').addClass('has-error');
+			showJLError('请选择是否新客户后重试！');
+			haserror = true;
+		}else{			
+			$('#divSJNew').removeClass('has-error');
+		}
+		
+		$fromiERPCode = $('#fromiERPCode');
+		if($fromiERPCode.val()==undefined || $fromiERPCode.val().length==0){
+			$fromiERPCode.parent().addClass('has-error');
+			showJLError('请填写ERP企业代码后重试！');
+			haserror = true;
+		}else{			
+			$fromiERPCode.parent().removeClass('has-error');
+		}
+		
+// 		$fromidentifier = $('#fromidentifier');
+// 		if($fromidentifier.val()==undefined || $fromidentifier.val().length==0){
+// 			$fromidentifier.parent().addClass('has-error');
+// 			showJLError('请填写企业营业执照后重试！');
+// 			haserror = true;
+// 		}else{			
+// 			$fromidentifier.parent().removeClass('has-error');
+// 		}
+		
+// 		var clueStatus = $('input[name="clueStatus"]:checked').val();
+		var fromIndustry = $("select[name='fromIndustry'] option:checked").text();
+		if(fromIndustry==undefined || fromIndustry.length==0){
+			$("#fromIndustry").parent().addClass('has-error');
+			showJLError('请选择归属行业后重试！');
+			haserror = true;
+		}else{
+			$("#fromIndustry").parent().removeClass('has-error');
+		}
+		
+// 		var fromArea = $("select[name='fromArea'] option:checked").text();
+// 		if(fromArea==undefined || fromArea.length==0){
+// 			$("#fromArea").parent().addClass('has-error');
+// 			showJLError('请选择归属城市后重试！');
+// 			haserror = true;
+// 		}else{
+// 			$("#fromArea").parent().removeClass('has-error');
+// 		}
+		
+		 $fromEmployee = $('#fromEmployee');
+		 if($fromEmployee.val()==undefined || $fromEmployee.val().length==0){				
+			showJLError('请选择商机受理人员后重试！');
+			haserror = true;
+		}
+		
+		$frommailNote = $('#frommailNote');
+		if($frommailNote.val()==undefined || $frommailNote.val().length==0){
+			$frommailNote.parent().addClass('has-error');
+			showJLError('请填写商机备注信息后重试！');
+			haserror = true;
+		}else{			
+			$frommailNote.parent().removeClass('has-error');
+		}
+		
+		if(!haserror){
+			var params = {};
+			params.bId = bid;
+			params.validInfo= $formSJType.val();
+			params.hasIn= $formSJIn.val();
+			params.isNew= $fromNew.val();
+			
+			params.erpId = $fromiERPCode.val();
+// 			params.identifier = $fromidentifier.val();
+			params.employee = $fromEmployee.val();
+			params.industryJw = fromIndustry;
+			params.city = fromArea;
+			params.bnote = $frommailNote.val();
+			
+			AVRIL.saveBusinessInfo(saveBusinessInfoBack, params);			
+		}
+	}
+	
+	function saveBusinessInfoBack(){
+		closeWin();
+	}
+	
+	
+	function doDataCheck2(){		
+		$frommailNote = $('#frommailNote');
+		if($frommailNote.val()==undefined || $frommailNote.val().length==0){
+			$frommailNote.parent().addClass('has-error');
+			showJLError('请填写商机备注信息后重试！');
+			haserror = true;
+		}else{			
+			$frommailNote.parent().removeClass('has-error');
+		}
+		if(!haserror){
+			var params = {};
+			params.bId = bid;         
+			params.bnote = $frommailNote.val();
+			AVRIL.saveBusinessInfo2(saveBusinessInfoBack, params);			
+		}
+	}
+	
+	function showQCC(){
+		window.open("https://www.qichacha.com/search?key="+$('#pageName').html()); 
+	}
+	
+	function closeWin(){	
+		if(parent){
+			parent.window.hiddenBusinessModal();
+		}
+	}
+	
+</script>
+
+</head>
+
+<body style="overflow: scroll; overflow-x: hidden; overflow-y: auto">
+	<form class="form-horizontal">
+		<div class="container-fixed">
+			<article class="article" style="padding: 0px; margin-bottom: 20px;">
+				<!-- 文章头部 -->
+				<header>
+					<div class="titlediv">
+					<font id="pageName">&nbsp;</font> <i class="icon icon-signin" onclick="showQCC();">企查查</i>
+					</div>
+					<!-- 文章属性列表 -->
+					<dl class="dl-inline">
+						<dt>联系人:</dt>
+						<dd id="pageMan">&nbsp;</dd>
+						<dt>联系电话:</dt>
+						<dd id="pagePhone">&nbsp;</dd>
+						<dt>
+							<br>
+						</dt>
+						<dd class="pull-right">
+							<span class="label label-success" id="pageSource">&nbsp;</span> 
+							<span class="label label-primary" id="pageType">&nbsp;</span> 
+							<span class="label label-info" id="pageEmployee">&nbsp;</span>
+						</dd>
+					</dl>
+					<div class="abstract">
+						<p>
+							<b id="pageNeed">客户需求：</b><span>&nbsp;</span>
+						</p>
+						<p>
+							<b id="pageNote">沟通备注：</b><span>&nbsp;</span>
+						</p>
+					</div>
+				</header>
+				<!-- 文章正文部分 -->
+				<!--   <section class="content"> -->
+
+				<!--   </section> -->
+
+			</article>
+
+			<div class="panel panel-success">
+				<div class="panel-heading">商机核准与分发</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">商机判定</label>
+						<div id="divSJType" class="col-sm-5">
+							<label class="checkbox-inline"> <input type="radio"
+								name="formSJType" value="有效商机" checked>&nbsp;有效商机
+							</label> <label class="checkbox-inline"> <input type="radio"
+								name="formSJType" value="商机信息">&nbsp;商机信息
+							</label>
+						</div>
+						<label for="fromPK" class="col-sm-1">归属城市</label>
+						<div class="col-sm-5">
+							<select class="form-control" id="fromArea" name="fromArea">
+							</select>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">客户类型</label>
+						<div id="divSJNew" class="col-sm-5">
+							<label class="checkbox-inline"> <input type="radio"
+								name="fromNew" value="0" checked>&nbsp;新客户
+							</label> <label class="checkbox-inline"> <input type="radio"
+								name="fromNew" value="1">&nbsp;老客户
+							</label>
+						</div>
+						<label for="fromPK" class="col-sm-1">库内商机</label>
+						<div id="divSJIn" class="col-sm-5">
+							<label class="checkbox-inline"> <input type="radio"
+								name="formSJIn" value="0">&nbsp;库内
+							</label> <label class="checkbox-inline"> <input type="radio"
+								name="formSJIn" value="1" checked>&nbsp;库外
+							</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">企业号码</label>
+						<div class="col-sm-5">
+							<input type="text" class="form-control" id="fromiERPCode"
+								data-toggle="tooltip" title="企业号码"
+								placeholder="ERP查询或新建相应企业后回填企业标识，必填">
+						</div>
+						<label for="fromPK" class="col-sm-1">所属行业</label>
+						<div class="col-sm-5">
+							<select class="form-control" id="fromIndustry"
+								name="fromIndustry">
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">受理人员</label> <input
+							id="fromEmployee" type="hidden" />
+						<!-- 				<div class="col-sm-1"> -->
+						<!-- 					<label for="fromPK">意向产品</label> -->
+						<!-- 				</div><i class="col-sm-1 icon icon-plus">意向产品</i> -->
+						<div class="col-sm-11">
+							<div class="clearfix selectable-example example"
+								id="selectableExample1"></div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-1">商机备注</label>
+						<div class="col-sm-11">
+							<textarea class="form-control" rows="2" id="frommailNote"
+								data-toggle="tooltip" title="沟通备注" placeholder="与客户联系人沟通信息，必填"></textarea>
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<label for="fromPK" class="col-sm-8">&nbsp;</label>
+						<div class="col-sm-4" style="margin-top: 6px;">
+							<button class="btn btn-danger" type="button"
+								onclick="doDataCheck2()" id="closeButton">关闭商机</button>
+							<button class="btn btn-primary" type="button"
+								onclick="doDataCheck();">商机发送</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</form>
+
+</body>
+<script type="text/javascript">
+
+	function getClueInfoBack(data){
+		if (data != undefined && data.clueInfo!=undefined && data.clueInfo.cCustomer!=undefined && data.clueInfo.cCustomer.length > 0) {			
+			$('#pageName').html(data.clueInfo.cCustomer);
+			$('#pageMan').html(data.clueInfo.cMan);
+			$('#pagePhone').html(data.clueInfo.cPhone);
+			$('#pageSource').html(data.clueInfo.cSource);
+			$('#pageType').html(data.clueInfo.cType);
+			if(data.clueInfo.createdNo!=undefined && data.clueInfo.createdNo.split(',')[1]!=undefined){
+				$('#pageEmployee').html(data.clueInfo.createdNo.split(',')[1]);
+			}else{
+				$('#pageEmployee').html(data.clueInfo.createdNo);
+			}
+			
+			
+			$('#pageNeed').next().html(data.clueInfo.cGoods);
+			$('#pageNote').next().html(data.clueInfo.cNote);
+			$('#frommailNote').val(data.clueInfo.cNote);
+			selectCity = data.clueInfo.cCity;	
+			if(selectCity!=undefined && selectCity.length>0){
+				$("#fromArea").find("option:contains('"+data.clueInfo.cCity+"')").attr("selected",true);
+			}
+		}else{
+			window.location.href="clueadd.html";
+		}
+	}
+	function getClueIndustryByDicBack(data) {
+		var rhtml = "";
+		if (data != undefined && data.length > 0) {
+			for (var i = 0; i < data.length; i++) {
+				rhtml += ("<option value=\""+data[i].dicCode+"\">" + data[i].dicValue + "</option>");
+			}
+			$("#fromIndustry").html(rhtml);
+		}
+	}
+
+	function getClueAreaByDicBack(data) {
+		var rhtml = "";
+		if (data != undefined && data.length > 0) {
+			for (var i = 0; i < data.length; i++) {			
+				rhtml += ("<option value=\""+data[i].dicCode+"\" "+(selectCity==data[i].dicValue?'selected':'')+">" + data[i].dicValue + "</option>");
+			}
+			$("#fromArea").html(rhtml);
+		}
+	}
+
+	function getEmployeeListBack(data) {
+		var rhtml = "";
+		if (data != undefined && data.length > 0) {
+			for (var i = 0; i < data.length; i++) {
+				rhtml += ("<div class=\"tile\" data-id=\""+data[i].pId+"\">"
+						+ data[i].personName + "</div>");
+			}
+			$("#selectableExample1").html(rhtml);
+		}
+	}
+</script>
+</html>

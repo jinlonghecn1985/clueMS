@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hnjing.core.model.dao.UserInfoMapper">
+
+<!-- Result Map-->
+<resultMap id="UserInfoResultMap" type="com.hnjing.core.model.entity.UserInfo">
+	<id column="ucode" property="ucode"/>
+	<result column="uname" property="uname"/>
+	<result column="umail" property="umail"/>
+	<result column="ustatus" property="ustatus"/>
+	<result column="ulevel" property="ulevel"/>
+	<result column="token" property="token"/>
+	<result column="last_dt" property="lastDt"/>
+	<result column="gmt_created" property="gmtCreated"/>
+	<result column="created_no" property="createdNo"/>
+	<result column="gmt_modify" property="gmtModify"/>
+	<result column="modify_no" property="modifyNo"/>
+</resultMap>
+
+<sql id="sql_userInfo_item">
+	ucode, uname, umail, ustatus, ulevel, token, last_dt, gmt_created, created_no, gmt_modify, modify_no
+</sql>
+       
+<!-- 查询条件 无WHERE -->
+<sql id="sql_userInfo_query_nowhere">
+	<trim prefix=" " prefixOverrides="AND|OR">
+		<if test="userInfo.ucode != null">AND ucode like concat(#{userInfo.ucode}, '%') </if>
+		<if test="userInfo.uname != null">AND (uname like concat('%', #{userInfo.uname}, '%') or ucode=#{userInfo.ucode} )</if>
+		<if test="userInfo.umail != null">AND umail like concat(#{userInfo.umail}, '%') </if>
+		<if test="userInfo.ustatus != null">AND ustatus = #{userInfo.ustatus} </if>
+		<if test="userInfo.ulevel != null">AND ulevel = #{userInfo.ulevel} </if>
+		<if test="userInfo.token != null">AND token = #{userInfo.token} </if>
+		<if test="userInfo.createdNo != null">AND created_no like concat(#{userInfo.createdNo}, '%') </if>
+		<if test="userInfo.modifyNo != null">AND modify_no like concat(#{userInfo.modifyNo}, '%') </if>
+	</trim>
+</sql>
+   
+<!-- 插入 用户信息表 -->
+<insert id="addUserInfo" parameterType="com.hnjing.core.model.entity.UserInfo" >
+ 	INSERT INTO tb_user_info 
+	<trim prefix=" (" suffix=")" suffixOverrides=",">
+		<if test="ucode != null"> ucode,</if>
+		<if test="uname != null"> uname,</if>
+		<if test="umail != null"> umail,</if>
+		<if test="ustatus != null"> ustatus,</if>
+		<if test="ulevel != null"> ulevel,</if>
+		<if test="token != null"> token,</if>
+		last_dt,
+		gmt_created,
+		<if test="createdNo != null"> created_no,</if>
+		gmt_modify,
+		<if test="modifyNo != null"> modify_no,</if>
+	</trim>	 	
+	<trim prefix="values (" suffix=")" suffixOverrides=",">
+		<if test="ucode != null"> #{ucode},</if>
+		<if test="uname != null"> #{uname},</if>
+		<if test="umail != null"> #{umail},</if>
+		<if test="ustatus != null"> #{ustatus},</if>
+		<if test="ulevel != null"> #{ulevel},</if>
+		<if test="token != null"> #{token},</if>
+		now(),
+		now(),
+		<if test="createdNo != null"> #{createdNo},</if>
+		now(),
+		<if test="modifyNo != null"> #{modifyNo},</if>
+	</trim>
+</insert>
+
+<!-- 根据标识，修改 用户信息表 -->  
+<update id="modifyUserInfo" parameterType="com.hnjing.core.model.entity.UserInfo" >
+  	UPDATE tb_user_info SET
+	<trim suffixOverrides=",">
+		<if test="uname != null"> uname = #{uname},</if>
+		<if test="umail != null"> umail = #{umail},</if>
+		<if test="ustatus != null"> ustatus = #{ustatus},</if>
+		<if test="ulevel != null"> ulevel = #{ulevel},</if>
+		<if test="token != null"> token = #{token}, last_dt = now(),</if>
+		gmt_modify = now(),
+		<if test="modifyNo != null"> modify_no = #{modifyNo},</if>
+	</trim>
+	WHERE ucode = #{ucode}
+</update>
+ 
+<!-- 删除 用户信息表 -->
+<delete id="dropUserInfoByUcode" parameterType="java.lang.String">
+	DELETE FROM tb_user_info WHERE ucode = #{ucode}
+</delete> 
+
+<!-- 根据标识查询 用户信息表 -->
+<select id="queryUserInfoByUcode"  resultMap="UserInfoResultMap" parameterType="java.lang.String">
+	SELECT 
+	<include refid="sql_userInfo_item"/>
+	FROM tb_user_info WHERE ucode = #{ucode}
+</select>
+
+<select id="queryUserInfoByToken"  resultMap="UserInfoResultMap" parameterType="java.lang.String">
+	SELECT 
+	<include refid="sql_userInfo_item"/>
+	FROM tb_user_info WHERE token = #{token}
+</select>
+
+<!-- 根据属性查询用户信息表 -->
+<select id="queryUserInfoByProperty"  resultMap="UserInfoResultMap" parameterType="java.util.Map">
+	SELECT 
+	<include refid="sql_userInfo_item"/>
+	FROM tb_user_info 
+	<where>
+		<include refid="sql_userInfo_query_nowhere"/>
+	</where>
+</select>
+
+<!-- 根据用户信息表属性与分页信息分页查询用户信息表信息 -->
+<select id="queryUserInfoForPage"  resultMap="UserInfoResultMap" > 
+	SELECT 
+	<include refid="sql_userInfo_item"/>
+	FROM tb_user_info 
+	<where>
+		<include refid="sql_userInfo_query_nowhere"/>
+	</where>
+</select>
+
+</mapper>   

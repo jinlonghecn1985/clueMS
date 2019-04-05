@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- 自定义业务 JavaScript 文件 -->
+<script src="avril.js"></script>
+<style type="text/css">
+.elehidden {
+	display: none;
+}
+</style>
+<script type="text/javascript">
+	var searchSource = "";
+	var searchWord = '';
+	var pagenum = 1;
+	var pagesize = 15;
+	$(document).ready(function() {
+		$('#searchKeyWord').bind('keypress', function(event) {
+			if (event.keyCode == 13) {
+				doSearchAction2();
+			}
+		});
+		reloadData();
+	});
+	var moddelHtml = "&nbsp;&nbsp;<i data-toggle=\"tooltip\" title=\"点击修订用户信息\" onclick=\"modifyPersion2(this);\" class=\"icon icon-user\"></i>"
+					+"&nbsp;&nbsp;<i data-toggle=\"tooltip\" title=\"点击刷新用户授权码\" onclick=\"deletePersion(this);\" class=\"icon icon-key\"></i>";
+
+	function modifyPersion2(th) {
+		modifyPersion($(th).parent().parent()[0]);
+	}
+	
+	function showUserLevel(s){
+		if (s == '1') {
+			return '线索提交';
+		}else if (s == '2') {
+			return '商机转发';
+		}else if (s == '3') {
+			return '线索提交+商机转发';
+		}else if (s == '9') {
+			return '管理员';
+		}else{
+			return '--';
+		}
+	}
+	
+	function getUserLevel(s){
+		if (s == '线索提交') {
+			return '1';
+		}else if (s == '商机转发') {
+			return '2';
+		}else if (s == '线索提交+商机转发') {
+			return '3';
+		}else if (s == '管理员') {
+			return '9';
+		}else{
+			return '--';
+		}
+	}
+
+	function changeSource(s) {
+		if (s == '0') {
+			$('#fromSource').val('0');
+			$('#source1').checked;
+			//$('#fromPage').attr("disabled", "disabled");
+			$('#source1').parent().addClass('btn-primary active');
+			$('#source2').parent().removeClass('btn-primary active');
+		} else {
+			$('#fromSource').val('1');
+			$('#source2').checked;
+			//$('#fromPage').attr("disabled", false);
+			$('#source2').parent().addClass('btn-primary active');
+			$('#source1').parent().removeClass('btn-primary active');
+		}
+	}
+
+	function deletePersion(th) {
+		$("#delTitle").html("操作将刷新用户的授权码，新的登录授权码将邮件发送至用户邮箱，同时凭老授权码将无法登入系统。目标用户 <font color=\"red\">("+$(th).parent().parent().children().eq(3).html()+")"+$(th).parent().parent().children().eq(4).html()+"</font> ,请慎重!");
+		$("#fromDelID").val($(th).parent().children("input").val());		
+		$('#checkModel').modal({
+			keyboard : true,
+			show : true
+		});
+	}
+
+	function doDeletePersion() {
+		AVRIL.refreshToken($("#fromDelID").val(), deletePersionBack);
+	}
+
+	function deletePersionBack(th) {
+		$('#checkModel').modal('hide');
+		searchWord = "";
+		reloadData();
+	}
+
+	function addPersion() {
+		$('#fromType').val('add');
+		$('#fromCode').val('');
+		$('#fromName').val('');
+		$('#fromMail').val('');
+		$('#fromId').val('');
+		changeSource('0');
+		$("input[name='formStatus']:eq(0)").attr("checked",'checked');
+		showInfoWindow();
+	}
+	function modifyPersion(th) {
+		var tddata = $(th).children();
+		$('#fromType').val('mod');
+		$('#fromCode').val(tddata.eq(3).html());
+		$('#fromName').val(tddata.eq(4).html());
+		$('#fromMail').val(tddata.eq(5).html());
+		changeSource(tddata.eq(1).html() == '停用' ? '1' : '0');
+		$('#fromId').val(tddata.eq(0).children("input").val()); 
+		var lv = getUserLevel(tddata.eq(2).html());
+		if('1'==lv){
+			$("input[name='formStatus']:eq(0)").attr("checked",'checked'); 
+		}else if('3'==lv){
+			$("input[name='formStatus']:eq(1)").attr("checked",'checked'); 
+		}else if('9'==lv){
+			$("input[name='formStatus']:eq(2)").attr("checked",'checked'); 
+		}
+		//
+		//console.log("ID:"+tddata.eq(0).children("input").val());		
+		showInfoWindow();
+	}
+
+	function loadPersionListBack(data) {
+		if (data != undefined && data.page != undefined) {
+			if (data.data != undefined && data.data.length > 0) {
+				var ihtml = "";
+				for (var i = 0; i < data.data.length; i++) {
+					ihtml += ("<tr data-toggle=\"tooltip\" title=\"双击修订用户\" ondblclick=\"modifyPersion(this);\">"
+							+ "<td>"
+							+ (data.page.startRow + i)
+							+ "<input type=\"hidden\" value=\""+data.data[i].ucode+"\">"
+							+ moddelHtml
+							+ "</td>"
+							+ "<td>"
+							+ (data.data[i].ustatus == 0 ? '<font color=\"38B03F\">有效</font>': '停用')
+							+ "</td>"		
+							+ "<td>"+(showUserLevel(data.data[i].ulevel)) + "</td>"
+							+ "<td>"+ data.data[i].ucode + "</td>"
+							+ "<td>"+ data.data[i].uname + "</td>"
+							+ "<td>"+ data.data[i].umail + "</td>"							
+							+ "<td>"+(data.data[i].lastDt == undefined ? "": data.data[i].lastDt) + "</td>"
+							+ "<td>"+(data.data[i].createdNo == undefined ? "": data.data[i].createdNo) + "</td>"
+							+ "<td>"+ data.data[i].gmtCreated + "</td>"
+							+ "<td>"+(data.data[i].modifyNo == undefined ? "": data.data[i].modifyNo) + "</td>"
+							+ "<td>" + data.data[i].gmtModify + "</td>" + "</tr>");
+				}
+				$("#persionTable").html(ihtml);
+				AVRIL.initPageBar(data.page);
+				return;
+			}			
+		}
+		AVRIL.initPageBar(null);
+		$("#persionTable")
+				.html(
+						'<tr><td colspan=\"11\"><font color=\"red\">没有查询到数据。</font></td></tr>');
+
+	}
+
+	function doSearchAction2() {
+		pagenum = 1;
+		searchWord = $('#searchKeyWord').val();
+		reloadData();
+	}
+
+	function doSearchAction(so) {
+		pagenum = 1;
+		searchSource = so;
+		reloadData();
+	}
+	function reloadData() {
+		AVRIL.loadUserList(loadPersionListBack, pagenum, pagesize, searchWord, searchSource);
+	}
+	function goPage(pn) {
+		pagenum = pn;
+		reloadData();
+	}
+
+	function showInfoWindow() {
+		$('#infoWindow').modal({
+			keyboard : true,
+			show : true
+		});
+	}
+
+	function doDataCheck() {
+		
+		$fromSource = $('#fromSource');
+		if ($fromSource.val().length == 0) {
+			showJLWarning('请选择状态');
+			$fromSource.focus().parent().addClass('has-error');
+			return;
+		}
+		$fromSource.parent().removeClass('has-error');
+		
+		
+		$fromCode = $('#fromCode');
+		if ($fromCode.val().length <3) {
+			showJLWarning('请填写三位以上用户代码！');
+			$fromCode.focus().parent().addClass('has-error');
+			return;
+		}else{
+			$fromCode.parent().removeClass('has-error');
+		}
+		
+
+		$fromName = $('#fromName');
+		if ($fromName.val().length == 0) {
+			showJLWarning('请填写用户姓名');
+			$fromName.focus().parent().addClass('has-error');
+			return;
+		}else{
+			$fromName.parent().removeClass('has-error');
+		}
+		
+		$fromMail = $('#fromMail');
+		if ($fromMail.val().length == 0) {
+			showJLWarning('请填写受理邮箱');
+			$fromMail.focus().parent().addClass('has-error');
+			return;
+		}else{
+			$fromMail.parent().removeClass('has-error');
+		}
+		
+		
+		$formStatus = $('input[name="formStatus"]:checked');
+		if($formStatus==undefined || $formStatus.val().length==0){
+			$('#divStatus').addClass('has-error');
+			showJLError('请选择用户权限等级！');
+			haserror = true;
+		}else{			
+			$('#divStatus').removeClass('has-error');
+		}
+		
+		var obj = {};
+		obj.type = $('#fromType').val();
+		obj.ustatus =  $fromSource.val();
+		obj.ucode = $fromCode.val();
+		obj.uname = $fromName.val();
+		obj.umail = $fromMail.val();
+		obj.ulevel = $formStatus.val();
+		var kwid = $('#fromId').val();
+		if(kwid!=undefined && kwid.length>0){
+			obj.ucode=kwid;
+		}	
+		AVRIL.saveUserInfo(savePersionInfoBack, obj);
+	}
+
+	function savePersionInfoBack(data) {
+		$('#infoWindow').modal('hide');
+		reloadData();
+	}
+</script>
+
+</head>
+
+<body style="overflow: scroll;overflow-x:hidden">
+	
+	<br />
+
+	<div class="row">
+		<div class="col-xs-0 col-sm-1 col-md-2 col-lg-3"></div>
+		<div class="input-group col-xs-12 col-sm-10 col-md-8 col-lg-6">
+			<input type="text" id="searchKeyWord" class="form-control"
+				placeholder="员工归属部门、姓名查询"> <span class="input-group-addon"
+				onclick="doSearchAction2();"><i class="icon icon-cloud">查询</i></span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-info active" onclick="doSearchAction('');">
+				<input type="radio" name="options" id="option1" checked> 全部
+			</label> <label class="btn btn-success" onclick="doSearchAction('0');">
+				<input type="radio" name="options" id="option2"> 正常
+			</label> <label class="btn btn-warning" onclick="doSearchAction('1');">
+				<input type="radio" name="options" id="option3"> 停用
+			</label>
+		</div>
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-primary" onclick="addPersion();"> <input
+				type="radio" name="options" id="option3"> 新增
+			</label>
+		</div>
+
+	</div>
+
+	<div class="row"></div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th width="70px"></th>
+				<th width="60px">状态</th>
+				<th width="100px">权限等级</th>
+				<th width="80px">用户工号</th>
+				<th width="100px">用户姓名</th>
+				<th width="160px">用户邮箱</th>
+				<th width="100px">授权更新</th>
+				<th width="100px">添加人员</th>				
+				<th width="120px">添加时间</th>
+				<th width="100px">修订人员</th>
+				<th width="120px">修订时间</th>
+			</tr>
+		</thead>
+		<tbody id="persionTable">
+		</tbody>
+	</table>
+	<footer style="float: right;">
+		<ul class="pager"></ul>
+	</footer>
+	<input type="hidden" id="cdicName" value="">
+	<input type="hidden" id="cdicValue" value="">
+	<input type="hidden" id="cdicFlag" value="">
+	<input type="hidden" id="cdicNote" value="">
+
+
+	<!-- 提示 -->
+	<div id="infoWindow" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title">字典参数配置窗口</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<input type="hidden" id="fromType" value="1" />
+						<input type="hidden" id="fromId" value="0" />
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">状态</label> <input
+								type="hidden" id="fromSource" value="0">
+							<div class="col-sm-10">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-primary active"
+										onclick="changeSource(0);"> <input type="radio"
+										name="options" id="source1" checked> 正常
+									</label> <label class="btn" onclick="changeSource(1);"> <input
+										type="radio" name="options" id="source2"> 停用
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">用户工号</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromCode"
+									data-toggle="tooltip" title="用户工号" placeholder="三位以上用户工号,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">用户姓名</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromName"
+									data-toggle="tooltip" title="用户姓名" placeholder="用户姓名,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">用户邮箱</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromMail"
+									data-toggle="tooltip" title="参数值" placeholder="用户邮箱,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">权限等级</label>
+							<div id="divStatus" class="col-sm-10">
+								<label class="checkbox-inline"> <input type="radio"
+									name="formStatus" value="1" >&nbsp;线索提交
+								</label>
+								<label class="checkbox-inline"> <input type="radio"
+									name="formStatus" value="3" >&nbsp;线索提交+商机转发
+								</label> 
+								<label class="checkbox-inline"> <input type="radio"
+									name="formStatus" value="9" checked>&nbsp;管理员
+								</label>
+							</div>
+						</div>
+														
+				</form>
+			</div>
+			<div class="modal-footer">
+				<input type="hidden" id="stageIdForDel"></input>
+				<button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+				<button type="button" class="btn btn-primary"
+					onclick="doDataCheck();">保存</button>
+			</div>
+		</div>
+	</div>
+	</div>
+	<div id="checkModel" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">温馨提示</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<input type="hidden" id="fromDelID" value="0" />
+					<p id="delTitle">删除操作将不可恢复,请慎重!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button onclick="doDeletePersion()" type="button"
+						class="btn btn-primary">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- ZUI 标准版压缩后的 CSS 文件 -->
+<link rel="stylesheet" href="./css/zui.min.css" />
+<!-- ZUI Javascript 依赖 jQuery -->
+<script src="./lib/jquery/jquery.js"></script>
+<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+<script src="./js/zui.min.js"></script>
+<!-- 自定义业务 JavaScript 文件 -->
+<script src="avril.js"></script>
+<style type="text/css">
+.elehidden {
+	display: none;
+}
+</style>
+<script type="text/javascript">
+	var searchSource = "";
+	var searchWord = '';
+	var pagenum = 1;
+	var pagesize = 15;
+	$(document).ready(function() {
+		$('#searchKeyWord').bind('keypress', function(event) {
+			if (event.keyCode == 13) {
+				doSearchAction2();
+			}
+		});
+		reloadData();
+	});
+	var moddelHtml = "&nbsp;&nbsp;<i onclick=\"modifyPersion2(this);\" class=\"icon icon-asterisk\"></i>&nbsp;&nbsp;<i onclick=\"deletePersion(this);\" class=\"icon icon-minus-sign\"></i>";
+
+	function modifyPersion2(th) {
+		modifyPersion($(th).parent().parent()[0]);
+	}
+
+	function changeSource(s) {
+		if (s == '0') {
+			$('#fromSource').val('0');
+			$('#source1').checked;
+			//$('#fromPage').attr("disabled", "disabled");
+			$('#source1').parent().addClass('btn-primary active');
+			$('#source2').parent().removeClass('btn-primary active');
+		} else {
+			$('#fromSource').val('1');
+			$('#source2').checked;
+			//$('#fromPage').attr("disabled", false);
+			$('#source2').parent().addClass('btn-primary active');
+			$('#source1').parent().removeClass('btn-primary active');
+		}
+	}
+
+	function deletePersion(th) {
+		$("#delTitle").html("删除操作将: <font color=\"red\">"+$(th).parent().parent().children().eq(2).html()+" 分组下的 "+$(th).parent().parent().children().eq(4).html()+"</font> 的参数且不可恢复,请慎重!");
+		$("#fromDelID").val($(th).parent().children("input").val());		
+		$('#checkModel').modal({
+			keyboard : true,
+			show : true
+		});
+	}
+
+	function doDeletePersion() {
+		AVRIL.deleteDirInfo(deletePersionBack, $("#fromDelID").val());
+	}
+
+	function deletePersionBack(th) {
+		$('#checkModel').modal('hide');
+		searchWord = "";
+		reloadData();
+	}
+
+	function addPersion() {
+		$('#fromType').val('add');
+		$('#fromGroup').attr("disabled", false);
+		$('#fromGroup').val('');
+		$('#fromFlag').val('9');
+		$('#fromCode').val('');
+		$('#fromValue').val('');		
+		$('#fromNote').val('');
+		$('#fromId').val('');
+		changeSource('0');
+		showInfoWindow();
+	}
+	function modifyPersion(th) {
+		var tddata = $(th).children();
+		$('#fromType').val('mod');
+		$('#fromGroup').attr("disabled", "disabled");
+		$('#fromGroup').val(tddata.eq(2).html());
+		$('#fromFlag').val(tddata.eq(3).html());
+		$('#fromCode').val(tddata.eq(4).html());
+		$('#fromValue').val(tddata.eq(5).html());		
+		$('#fromNote').val(tddata.eq(6).html());
+		changeSource(tddata.eq(1).html() == '停用' ? '1' : '0');
+		$('#fromId').val(tddata.eq(0).children("input").val()); 
+		//console.log("ID:"+tddata.eq(0).children("input").val());		
+		showInfoWindow();
+	}
+
+	function loadPersionListBack(data) {
+		if (data != undefined && data.page != undefined) {
+			if (data.data != undefined && data.data.length > 0) {
+				var ihtml = "";
+				for (var i = 0; i < data.data.length; i++) {
+					ihtml += ("<tr data-toggle=\"tooltip\" title=\"双击修订字典值\" ondblclick=\"modifyPersion(this);\">"
+							+ "<td>"
+							+ (data.page.startRow + i)
+							+ "<input type=\"hidden\" value=\""+data.data[i].dicId+"\">"
+							+ moddelHtml
+							+ "</td>"
+							+ "<td>"
+							+ (data.data[i].dicStatus == 0 ? '<font color=\"38B03F\">有效</font>': '停用')
+							+ "</td>"						
+							+ "<td>"+ data.data[i].dicGroup + "</td>"
+							+ "<td>"+ data.data[i].dicFlag + "</td>"
+							+ "<td>"+ data.data[i].dicCode + "</td>"
+							+ "<td>"+ data.data[i].dicValue + "</td>"
+							
+							+ "<td>"+(data.data[i].dicNote == undefined ? "": data.data[i].dicNote) + "</td>"
+							+ "<td>"+ data.data[i].gmtCreated + "</td>"
+							+ "<td>" + data.data[i].gmtModify + "</td>" + "</tr>");
+				}
+				$("#persionTable").html(ihtml);
+				AVRIL.initPageBar(data.page);
+				return;
+			}			
+		}
+		AVRIL.initPageBar(null);
+		$("#persionTable")
+				.html(
+						'<tr><td colspan=\"9\"><font color=\"red\">没有查询到数据。</font></td></tr>');
+
+	}
+
+	function doSearchAction2() {
+		pagenum = 1;
+		searchWord = $('#searchKeyWord').val();
+		reloadData();
+	}
+
+	function doSearchAction(so) {
+		pagenum = 1;
+		searchSource = so;
+		reloadData();
+	}
+	function reloadData() {
+		AVRIL.loadDicList(loadPersionListBack, pagenum, pagesize, searchWord,
+				searchSource);
+	}
+	function goPage(pn) {
+		pagenum = pn;
+		reloadData();
+	}
+
+	function showInfoWindow() {
+		$('#infoWindow').modal({
+			keyboard : true,
+			show : true
+		});
+	}
+
+	function doDataCheck() {
+		
+		$fromSource = $('#fromSource');
+		if ($fromSource.val().length == 0) {
+			showJLWarning('请选择状态');
+			$fromSource.focus().parent().addClass('has-error');
+			return;
+		}
+		$fromSource.parent().removeClass('has-error');
+		
+		
+		$fromGroup = $('#fromGroup');
+		if ($fromGroup.val().length == 0) {
+			showJLWarning('请填写参数分组');
+			$fromGroup.focus().parent().addClass('has-error');
+			return;
+		}
+		$fromGroup.parent().removeClass('has-error');
+
+		$fromCode = $('#fromCode');
+		if ($fromCode.val().length == 0) {
+			showJLWarning('请填写参数代码');
+			$fromCode.focus().parent().addClass('has-error');
+			return;
+		}
+		$fromCode.parent().removeClass('has-error');
+		
+		$fromValue = $('#fromValue');
+		if ($fromValue.val().length == 0) {
+			showJLWarning('请填写参数值');
+			$fromValue.focus().parent().addClass('has-error');
+			return;
+		}
+		$fromValue.parent().removeClass('has-error');
+		
+		var obj = {};
+		obj.dicStatus =  $fromSource.val();
+		obj.dicGroup = $fromGroup.val();
+		obj.dicCode = $fromCode.val();
+		obj.dicValue = $fromValue.val();
+		obj.dicFlag = $('#fromFlag').val();
+		obj.dicNote = $('#fromNote').val();		
+		obj.type = $('#fromType').val();
+		var kwid = $('#fromId').val();
+		if(kwid!=undefined && kwid.length>0){
+			obj.dicId=kwid;
+		}	
+		AVRIL.saveDicInfo(savePersionInfoBack, obj);
+	}
+
+	function savePersionInfoBack(data) {
+		$('#infoWindow').modal('hide');
+		reloadData();
+	}
+</script>
+
+</head>
+
+<body style="overflow: scroll;overflow-x:hidden">
+	
+	<br />
+
+	<div class="row">
+		<div class="col-xs-0 col-sm-1 col-md-2 col-lg-3"></div>
+		<div class="input-group col-xs-12 col-sm-10 col-md-8 col-lg-6">
+			<input type="text" id="searchKeyWord" class="form-control"
+				placeholder="根据参数代码或参数值进行模糊查询"> <span class="input-group-addon"
+				onclick="doSearchAction2();"><i class="icon icon-cloud">查询</i></span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-info active" onclick="doSearchAction('');">
+				<input type="radio" name="options" id="option1" checked> 全部
+			</label> <label class="btn btn-success" onclick="doSearchAction('0');">
+				<input type="radio" name="options" id="option2"> 正常
+			</label> <label class="btn btn-warning" onclick="doSearchAction('1');">
+				<input type="radio" name="options" id="option3"> 停用
+			</label>
+		</div>
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-primary" onclick="addPersion();"> <input
+				type="radio" name="options" id="option3"> 新增
+			</label>
+		</div>
+
+	</div>
+
+	<div class="row"></div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th width="100px"></th>
+				<th width="60px">状态</th>
+				<th width="90px">字典分组</th>
+				<th width="60px">排序</th>
+				<th width="120px">参数代码</th>
+				<th width="180px">参数值</th>
+				
+				<th>备注</th>
+				<th width="120px">添加时间</th>
+				<th width="120px">修订时间</th>
+			</tr>
+		</thead>
+		<tbody id="persionTable">
+		</tbody>
+	</table>
+	<footer style="float: right;">
+		<ul class="pager"></ul>
+	</footer>
+	<input type="hidden" id="cdicName" value="">
+	<input type="hidden" id="cdicValue" value="">
+	<input type="hidden" id="cdicFlag" value="">
+	<input type="hidden" id="cdicNote" value="">
+
+
+	<!-- 提示 -->
+	<div id="infoWindow" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title">字典参数配置窗口</h4>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<input type="hidden" id="fromType" value="1" />
+						<input type="hidden" id="fromId" value="0" />
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">状态</label> <input
+								type="hidden" id="fromSource" value="0">
+							<div class="col-sm-10">
+								<div class="btn-group" data-toggle="buttons">
+									<label class="btn btn-primary active"
+										onclick="changeSource(0);"> <input type="radio"
+										name="options" id="source1" checked> 正常
+									</label> <label class="btn" onclick="changeSource(1);"> <input
+										type="radio" name="options" id="source2"> 停用
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">字典分组</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromGroup"
+									data-toggle="tooltip" title="字典分组" placeholder="字典分组,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">参数代码</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromCode"
+									data-toggle="tooltip" title="参数代码" placeholder="参数代码,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">参数值</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromValue"
+									data-toggle="tooltip" title="参数值" placeholder="参数值,必填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">小组排序</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="fromFlag"
+									data-toggle="tooltip" title="参数值" placeholder="参数值,选填"  />
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label for="fromPK" class="col-sm-2">参数备注</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="3" id="fromNote"
+									data-toggle="tooltip" title="参数备注"
+									placeholder="参数备注，选填"></textarea>								
+							</div>
+						</div>						
+				</form>
+			</div>
+			<div class="modal-footer">
+				<input type="hidden" id="stageIdForDel"></input>
+				<button type="button" class="btn btn-default" data-dismiss="modal">返回</button>
+				<button type="button" class="btn btn-primary"
+					onclick="doDataCheck();">保存</button>
+			</div>
+		</div>
+	</div>
+	</div>
+	<div id="checkModel" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">温馨提示</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<input type="hidden" id="fromDelID" value="0" />
+					<p id="delTitle">删除操作将不可恢复,请慎重!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button onclick="doDeletePersion()" type="button"
+						class="btn btn-primary">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
