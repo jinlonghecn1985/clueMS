@@ -48,15 +48,26 @@ function getSourceName(so){
 	}
 }
 
-function shwoClueLink(so, cn, cid){
-	console.log('load avril.js'+so);	
-	if(so==null || so == undefined ){
-		return cn;
-	}else if(so == 0 || so == 3){		
-		return "<a href=\"javascript:showClueModel('&cid="+cid+"');\">"+((cn==undefined||cn.length==0)?"--":cn)+"</a>";
-	}else{
-		return cn;
+function showCluePhone(cid, phone, pnum){
+	if(pnum!=undefined && pnum!=0){
+		return '<i onclick="showRepeatData('+cid+', undefined, \'8090\');" class="icon icon-group"  data-toggle="tooltip" title="相同联系电话线索共计'+pnum+'条，点击查看详情！" ></i>';
 	}
+	return '';
+}
+
+function shwoClueLink(so, cn, cid, nnum){	
+	if(cn==undefined||cn.length==0){
+		cn = '--';
+	}
+	var ihml = cn;
+	if(so == 0 || so == 3){		
+		ihml = "<a href=\"javascript:showClueModel('&cid="+cid+"');\">"+cn+"</a>";
+	}
+	if(nnum!=undefined && nnum!=0){
+		return '<i onclick="showRepeatData('+cid+', \''+cn+'\', undefined);" data-toggle="tooltip" title="相同企业名称线索共计'+nnum+'条，点击查看详情！" class="icon icon-th-list"></i>&nbsp;'+ihml;
+	}
+	return ihml;
+		
 }
 
 
@@ -66,19 +77,19 @@ function queryClueListBack(data){
 			var ihtml = "";
 			for(var i=0; i<data.data.length; i++){
 				ihtml+=("<tr >"
-						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].cId+"\"></td>"
-						+"<td>"+(getSourceName(data.data[i].statuss))+"</td>"	
-						+"<td>"+data.data[i].cCity+"</td>"
-						+"<td>"+(data.data[i].cSource)+"</td>"	
-						+"<td>"+data.data[i].cStatus+"</td>"
-						+"<td>"+(data.data[i].cReason==undefined?"":data.data[i].cReason)+"</td>"
-						+"<td>"+shwoClueLink(data.data[i].statuss,(data.data[i].cCustomer==undefined?'--':data.data[i].cCustomer), data.data[i].cId)+"</td>"
-						+"<td>"+data.data[i].cMan+"</td>"
-						+"<td>"+data.data[i].cPhone+"</td>"
-						+"<td>"+(data.data[i].cGoods==undefined?'':data.data[i].cGoods)+"</td>"
-						+"<td>"+(data.data[i].cNote==undefined?'':data.data[i].cNote)+"</td>"							
+						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].clueInfo.cId+"\"></td>"
+						+"<td>"+(getSourceName(data.data[i].clueInfo.statuss))+"</td>"	
+						+"<td>"+data.data[i].clueInfo.cCity+"</td>"
+						+"<td>"+(data.data[i].clueInfo.cSource)+"</td>"	
+						+"<td>"+data.data[i].clueInfo.cStatus+"</td>"
+						+"<td>"+(data.data[i].clueInfo.cReason==undefined?"":data.data[i].clueInfo.cReason)+"</td>"
+						+"<td>"+shwoClueLink(data.data[i].clueInfo.statuss,(data.data[i].clueInfo.cCustomer==undefined?'--':data.data[i].clueInfo.cCustomer), data.data[i].clueInfo.cId, data.data[i].repeatNameCount)+"</td>"
+						+"<td>"+data.data[i].clueInfo.cMan+"</td>"
+						+"<td>"+showCluePhone(data.data[i].clueInfo.cId, data.data[i].clueInfo.cPhone, data.data[i].repeatPhoneCount)+data.data[i].clueInfo.cPhone+"</td>"
+						+"<td>"+(data.data[i].clueInfo.cGoods==undefined?'':data.data[i].clueInfo.cGoods)+"</td>"
+						+"<td>"+(data.data[i].clueInfo.cNote==undefined?'':data.data[i].clueInfo.cNote)+"</td>"							
 						
-						+"<td>"+data.data[i].gmtModify+"</td>"
+						+"<td>"+data.data[i].clueInfo.gmtModify+"</td>"
 						+"</tr>");				
 			}	 		
 			$("#persionTable").html(ihtml);
@@ -139,6 +150,24 @@ function showInfoWindow(){
 	    show     : true
 	});	
 }
+
+function showRepeatData(did, dname, dphone){
+	if(did==null || did==undefined){
+		did = "";
+	}
+	if(dname==null || dname==undefined){
+		dname = "";
+	}
+	if(dphone==null || dphone==undefined){
+		dphone = "";
+	}
+	$("#mainRepeat").attr("src", "cluelist2.html?cid="+did+"&customer="+dname+"&phone="+dphone);	
+	$('#clueRepeatModel').modal({
+	    keyboard : true,
+	    show     : true
+	});	
+}
+
 
 
 function doDataUpload(){
@@ -223,7 +252,7 @@ function doEjingUpload(){
 		      <th width="120px">判定补充</th>
 		      <th width="220px">企业名称</th>
 		      <th width="90px">联系人</th>
-		      <th width="100px">联系电话</th>
+		      <th width="120px">联系电话</th>
 		      <th width="180px">意向产品</th>
 		      <th >沟通备注</th>		     
 		      <th width="120px">更新时间</th>
@@ -237,7 +266,22 @@ function doEjingUpload(){
 	<ul class="pager"></ul>	
 </footer>
 
-
+<div id="clueRepeatModel" class="modal fade">
+		<div class="modal-dialog  modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">重复线索</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+					<iframe width="100%" height="100%" src="nullnull.html" style="overflow: scroll;overflow-x:hidden"  frameborder="0" id="mainRepeat" name="mainRepeat" ></iframe>				
+				</div>
+				
+		</div>
+	</div>
+</div>
 
 	<div id="clueaddModel" class="modal fade">
 		<div class="modal-dialog  modal-fullscreen">
@@ -267,7 +311,8 @@ function doEjingUpload(){
 	    <form id="uploadFrom" action="/bmsxuanyuan/upload" method="post" enctype="multipart/form-data">
 	   		<input type="file" name="xlsFile"/>
 <!-- 	       <input type="submit" value="提交"/> -->
-	    </form>	
+	    </form>
+	     &nbsp;&nbsp;<a href="/doc/xyClue.xlsx">模板下载</a>
       </div>
       <div class="modal-footer">
       	<input type="hidden" id="stageIdForDel"></input>
@@ -289,7 +334,9 @@ function doEjingUpload(){
 	    <form id="uploadFromBus" action="/bmsejing/upload" method="post" enctype="multipart/form-data">
 	   		<input type="file" name="xlsFile"/>
 	    </form>	
+	    &nbsp;&nbsp;<a href="/doc/ejingClue.xls">模板下载</a>
       </div>
+      
       <div class="modal-footer">
       	<input type="hidden" id="stageIdForDel"></input>
         <button type="button" class="btn btn-default" data-dismiss="modal">返回</button>

@@ -53,20 +53,31 @@ function getSourceName(so){
 	}
 }
 
-function getFunction(so, bid, cus){
-	if(so==null || so == undefined ){
-		return "--";
-	}else if(so ==0){		
-		return "<a href=\"javascript:showBusinessModal('business.html?bid="+bid+"&p=12');\">"+cus+"</a>";
-	}else if(so ==1){
-		return "<a href=\"javascript:showBusinessModal('business2.html?bid="+bid+"&p=12');\">"+cus+"</a>";
-	}else if(so ==7){
-		return "<font color=\"EA644A\">"+cus+"</font>";
-	}else if(so ==8){
-		return "<font color=\"38B03F\">"+cus+"</font>";
-	}else{
-		return "未定义";
+function getFunction(so, bid, cus, nnum){
+	if(cus == undefined || cus.length==0){
+		cus = "--";
 	}
+	if(so ==0){		
+		cus = "<a href=\"javascript:showBusinessModal('business.html?bid="+bid+"&p=12');\">"+cus+"</a>";
+	}else if(so ==1){
+		cus = "<a href=\"javascript:showBusinessModal('business2.html?bid="+bid+"&p=12');\">"+cus+"</a>";
+	}else if(so ==7){
+		cus = "<font color=\"EA644A\">"+cus+"</font>";
+	}else if(so ==8){
+		cus = "<font color=\"38B03F\">"+cus+"</font>";
+	}
+	
+	if(nnum!=undefined && nnum!=0){
+		return '<i onclick="showRepeatData('+bid+', \'4000731777\', undefined);" data-toggle="tooltip" title="相同企业名称商机共计'+nnum+'条，点击查看详情！" class="icon icon-th-list"></i>&nbsp;'+cus;
+	}
+	return cus;
+}
+
+function showPhoneFunction(bid,pnum){
+	if(pnum!=undefined && pnum!=0){
+		return '<i onclick="showRepeatData('+bid+', undefined, \'4000731777\');" class="icon icon-group"  data-toggle="tooltip" title="相同联系电话商机共计'+pnum+'条，点击查看详情！" ></i>';
+	}
+	return '';
 }
 
 
@@ -76,17 +87,17 @@ function queryClueListBack(data){
 			var ihtml = "";
 			for(var i=0; i<data.data.length; i++){
 				ihtml+=("<tr >"
-						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].bId+"\"></td>"
-						+"<td>"+(getSourceName(data.data[i].sjStatus))+"</td>"	
-						+"<td>"+(data.data[i].gmtCreatedUser)+"</td>"
-						+"<td>"+(getFunction(data.data[i].sjStatus, data.data[i].bId, data.data[i].cCustomer))+"</td>"	
-						+"<td>"+data.data[i].cPhone+"</td>"			
-						+"<td>"+(data.data[i].department==undefined?'':(data.data[i].department))+"</td>"
-						+"<td>"+(data.data[i].employee==undefined?'':(data.data[i].employee))+"</td>"
-						+"<td>"+(data.data[i].cGoods==undefined?'':(data.data[i].cGoods))+"</td>"
-						+"<td>"+(data.data[i].business==undefined?'':(data.data[i].business))+"</td>"					
-						+"<td>"+data.data[i].gmtCreated+"</td>"
-						+"<td>"+data.data[i].gmtModify+"</td>"
+						+"<td>"+(data.page.startRow+i)+"<input type=\"hidden\" value=\""+data.data[i].businessInfo.bId+"\"></td>"
+						+"<td>"+(getSourceName(data.data[i].businessInfo.sjStatus))+"</td>"	
+						+"<td>"+(data.data[i].businessInfo.gmtCreatedUser)+"</td>"
+						+"<td>"+(getFunction(data.data[i].businessInfo.sjStatus, data.data[i].businessInfo.bId, data.data[i].businessInfo.cCustomer, data.data[i].repeatNameCount))+"</td>"	
+						+"<td>"+showPhoneFunction(data.data[i].businessInfo.bId, data.data[i].repeatPhoneCount)+data.data[i].businessInfo.cPhone+"</td>"			
+						+"<td>"+(data.data[i].businessInfo.department==undefined?'':(data.data[i].businessInfo.department))+"</td>"
+						+"<td>"+(data.data[i].businessInfo.employee==undefined?'':(data.data[i].businessInfo.employee))+"</td>"
+						+"<td>"+(data.data[i].businessInfo.cGoods==undefined?'':(data.data[i].businessInfo.cGoods))+"</td>"
+						+"<td>"+(data.data[i].businessInfo.business==undefined?'':(data.data[i].businessInfo.business))+"</td>"					
+						+"<td>"+data.data[i].businessInfo.gmtCreated+"</td>"
+						+"<td>"+data.data[i].businessInfo.gmtModify+"</td>"
 						+"</tr>");				
 			}	 		
 			$("#persionTable").html(ihtml);
@@ -147,6 +158,24 @@ function exportFunction(){
 }
 
 
+
+function showRepeatData(did, dname, dphone){
+	if(did==null || did==undefined){
+		did = "";
+	}
+	if(dname==null || dname==undefined){
+		dname = "";
+	}
+	if(dphone==null || dphone==undefined){
+		dphone = "";
+	}
+	$("#mainRepeat").attr("src", "businesslist2.html?cid="+did+"&customer="+dname+"&phone="+dphone);	
+	$('#businessRepeatModel').modal({
+	    keyboard : true,
+	    show     : true
+	});	
+}
+
 </script>
 
 </head>
@@ -196,7 +225,22 @@ function exportFunction(){
 <footer style="float:right; ">
 	<ul class="pager"></ul>	
 </footer>
-
+<div id="businessRepeatModel" class="modal fade">
+		<div class="modal-dialog  modal-fullscreen">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">重复商机</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+					<iframe width="100%" height="100%" src="nullnull.html" style="overflow: scroll;overflow-x:hidden"  frameborder="0" id="mainRepeat" name="mainRepeat" ></iframe>				
+				</div>
+				
+		</div>
+	</div>
+</div>
 
 <div id="businessModel" class="modal fade">
 		<div class="modal-dialog  modal-fullscreen">

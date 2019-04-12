@@ -58,6 +58,17 @@ public interface ClueInfoService {
 	 * @return List<ClueInfo>
 	 */
 	Map<String, Object> queryClueInfoForPage(Integer pagenum, Integer pagesize, String sort, ClueInfo clueInfo);
+	
+	/**
+	 * @Title: queryClueInfoRepeatForPage
+	 * @Description: 根据线索信息属性与分页信息分页查询线索信息信息(根据公司名称与联系电话查重)
+	 * @param pagenum 页 
+	 * @param pagesize 页大小 
+	 * @param sort 排序
+	 * @param clueInfo 实体
+	 * @return List<ClueInfo>
+	 */
+	Map<String, Object> queryClueInfoRepeatForPage(Integer pagenum, Integer pagesize, String sort, ClueInfo clueInfo);
 	 
 	 /**
 	 * @Title: queryClueInfoByProperty
@@ -67,5 +78,7 @@ public interface ClueInfoService {
 	 List<ClueInfo> queryClueInfoByProperty(Map<String, Object> map);	
 	 
 	 HSSFWorkbook exportByProperty(Map<String, Object> map);	
+	 
+	 
 	 
 }

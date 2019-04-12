@@ -70,8 +70,8 @@ public interface BusinessInfoMapper {
 	  * @Description:根据属性查询商机信息
 	  * @return List<BusinessInfo>
 	  */
-	 List<BusinessInfo> queryBusinessInfoByProperty(@Param("businessInfo") Map<String, Object> map);
+	List<BusinessInfo> queryBusinessInfoByProperty(@Param("businessInfo") Map<String, Object> map);
 	 
-	 
+	Map<String, Object> queryBusinessRepeatCount(@Param("bId")Integer bId, @Param("cCustomer")String cCustomer, @Param("cPhone") String cPhone);
 	 
 }

@@ -1,5 +1,6 @@
 package com.hnjing.core.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.hnjing.core.model.dao.BusinessInfoMapper;
 import com.hnjing.core.model.entity.BusinessInfo;
+import com.hnjing.core.model.entity.ClueInfo;
 import com.hnjing.core.service.BusinessInfoService;
 import com.hnjing.core.service.impl.bo.BusinessInfoBo;
+import com.hnjing.core.service.impl.bo.BusinessRepeatBo;
+import com.hnjing.core.service.impl.bo.ClueRepeatBo;
 import com.hnjing.utils.Constant;
 import com.hnjing.utils.DateUtil;
 import com.hnjing.utils.file.office.ExcelWriteUtil;
@@ -162,8 +166,8 @@ public class  BusinessInfoServiceImpl implements BusinessInfoService {
 				
 				data[j][10] = ci.getcMan();
 				data[j][11] = ci.getcPhone();
-				data[j][12] = ci.getHasIn().intValue()==0?"库内":"库外";
-				data[j][13] = ci.getIsNew()==0?"新客":"老客";
+				data[j][12] = ci.getHasIn()==null?"":(ci.getHasIn().intValue()==0?"库内":"库外");
+				data[j][13] = ci.getIsNew()==null?"":(ci.getIsNew()==0?"新客":"老客");
 				data[j][14] = ci.getDepartment();
 				data[j][15] = ci.getEmployee();
 				data[j][16] = ci.getcGoods();
@@ -211,6 +215,54 @@ public class  BusinessInfoServiceImpl implements BusinessInfoService {
 	@Override
 	public List<BusinessInfoBo> queryBusinessInfoBoByProperty(Map<String, Object> map) {
 		return businessInfoMapper.queryBusinessInfoBoByProperty(map);
+	}
+
+	/*
+	 * @Title: queryBusinessInfoRepeatForPage
+	 * @Description: TODO
+	 * @param @param pagenum
+	 * @param @param pagesize
+	 * @param @param sort
+	 * @param @param businessInfo
+	 * @param @return    参数  
+	 * @author Jinlong He
+	 * @param pagenum
+	 * @param pagesize
+	 * @param sort
+	 * @param businessInfo
+	 * @return
+	 * @see com.hnjing.core.service.BusinessInfoService#queryBusinessInfoRepeatForPage(java.lang.Integer, java.lang.Integer, java.lang.String, com.hnjing.core.model.entity.BusinessInfo)
+	 */ 
+	@Override
+	public Map<String, Object> queryBusinessInfoRepeatForPage(Integer pagenum, Integer pagesize, String sort,
+			BusinessInfo businessInfo) {
+		HashMap<String, Object> returnMap = new HashMap<String, Object>();
+		PageBounds pageBounds = pageService.getPageBounds(pagenum, pagesize, null, true, false);
+		pageBounds.setOrdersByJson(sort, BusinessInfo.class);
+		List<BusinessInfo> entityList = businessInfoMapper.queryBusinessInfoForPage(pageBounds, businessInfo);
+		if(null!=sort && sort.length()>0){
+			pageBounds.setOrdersByJson(sort, BusinessInfo.class);
+		}		
+		PageList<BusinessInfo> pagelist = (PageList<BusinessInfo>) entityList;
+		List<BusinessRepeatBo> dataList = new ArrayList<BusinessRepeatBo>();
+		if(entityList!=null && entityList.size()>0) {
+			for(BusinessInfo bi : entityList) {
+				BusinessRepeatBo bib = new BusinessRepeatBo();
+				bib.setBusinessInfo(bi);
+				Map<String, Object> countMap = businessInfoMapper.queryBusinessRepeatCount(bi.getBId(), bi.getCCustomer()==null?"hejinlong@hnjing.com":bi.getCCustomer(), bi.getcPhone()==null?"hejinlong@hnjing.com":bi.getcPhone());
+				bib.setRepeatNameCount(((Long)countMap.get("nameRepeat")).intValue());
+				bib.setRepeatPhoneCount(((Long)countMap.get("phoneRepeat")).intValue());
+				if(bi!=null && bi.getcPhone()!=null && bi.getcPhone().length()>7) {
+					bi.setcPhone(bi.getcPhone().substring(0, 3)+"****"+bi.getcPhone().substring(bi.getcPhone().length()-4));
+				}
+				dataList.add(bib);
+			}
+		}
+		
+		returnMap.put(Constant.PAGELIST, dataList);
+		returnMap.put(Constant.PAGINATOR, pagelist.getPaginator());
+		
+		return returnMap;
 	}
 
 

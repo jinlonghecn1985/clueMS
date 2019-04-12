@@ -68,6 +68,6 @@ public interface ClueInfoMapper {
 	  */
 	 List<ClueInfo> queryClueInfoByProperty(@Param("clueInfo") Map<String, Object> map);
 	 
-	 
+	 Map<String, Object> queryClueRepeatCount(@Param("cId")Integer cId, @Param("cCustomer")String cCustomer, @Param("cPhone") String cPhone);
 	 
 }

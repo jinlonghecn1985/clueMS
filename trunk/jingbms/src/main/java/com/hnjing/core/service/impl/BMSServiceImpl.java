@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,7 @@ import com.hnjing.utils.MailUtil;
 @Service("bmsService")
 @Transactional(readOnly=true)
 public class BMSServiceImpl implements BMSService{
+	private static final Logger logger = LoggerFactory.getLogger(BMSServiceImpl.class);
 
 	@Autowired
 	private ClueInfoService clueInfoService;
@@ -96,6 +99,7 @@ public class BMSServiceImpl implements BMSService{
 				bi.setcPhone(clueInfo.getCPhone());
 				bi.setGmtCreatedUser(clueInfo.getCreatedNo());
 				bi.setCity(clueInfo.getCCity());
+				bi.setcGoods(clueInfo.getCGoods());
 				businessInfoService.addBusinessInfo(bi);
 				if(bi==null || bi.getBId()==null) {
 					throw new ParameterException("business", "线索添加商机异常");
@@ -456,15 +460,20 @@ public class BMSServiceImpl implements BMSService{
 		
 		
 		List<String> title = xlsData.get(0);
+		logger.info("S:"+title.size());
 		for(int i=0; i<title.size(); i++) {
+			
 			String t = title.get(i);
+			logger.info(t);
 			if(t==null || t.trim().length()==0) {
 				continue;
 			}
 			if(keys.contains(","+t+",")) {
 				colMap.put(t, i);   //包括列头
 			}
-		}		
+		}	
+		
+		
 		if(colMap.get("联系人")==null) {
 			throw new ParameterException("联系人", "联系人列头无法匹配");
 		}
@@ -532,8 +541,10 @@ public class BMSServiceImpl implements BMSService{
 		Map<String, Integer> colMap = new HashMap<String, Integer>();
 		String keys = ",日期,咨询来源,咨询方式,公司名称,联系人,联系方式,城市,备注,线索客户分类,产品分类,产品需求,咨询情况,";
 		List<String> title = xlsData.get(0);
-		for(int i=0; i<title.size(); i++) {
+		
+		for(int i=0; i<title.size(); i++) {		
 			String t = title.get(i);
+		
 			if(t==null || t.trim().length()==0) {
 				continue;
 			}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<title>商机管理系统-流程信息部</title>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- ZUI 标准版压缩后的 CSS 文件 -->
+	<link rel="stylesheet" href="./css/zui.min.css" />
+	<!-- ZUI Javascript 依赖 jQuery -->
+	<script src="./lib/jquery/jquery.js"></script>
+	<!-- ZUI 标准版压缩后的 JavaScript 文件 -->
+	<script src="./js/zui.min.js"></script>	
+	<!-- 自定义业务 JavaScript 文件 -->
+	<script src="avril.js"></script>
+<style type="text/css"> 
+.elehidden{display: none;}
+</style>
+	<script type="text/javascript">	
+	var searchBusinessId = '';
+	var searchCustomer = '';
+	var searchPhone = ''; 
+	$(document).ready(function(){
+		searchCustomer = getQueryStringByName('customer');
+		searchPhone = getQueryStringByName('phone');
+		searchBusinessId = getQueryStringByName('cid');
+		
+		reloadData();	
+	});
+function getSourceName(so){
+	if(so==null || so == undefined ){
+		return "--";
+	}else if(so ==0){
+		return "待核查";		
+	}else if(so ==1){
+		return "<font color=\"03B8CF\">商机待发</font>";
+	}else if(so ==2){
+		return "<font color=\"F1A325\">商机跟进</font>";
+	}else if(so ==3){
+		return "非商机";		
+	}else if(so ==4){
+		return "<font color=\"EA644A\">商机中止</font>";
+	}else if(so ==5){
+		return "<font color=\"38B03F\">商机成交</font>";
+	}else{
+		return "未定义";
+	}
+}
+
+function queryClueRepeatListBack(data){
+		if(data!=undefined && data.length>0){
+			var ihtml = "";
+			for(var i=0; i<data.length; i++){
+				ihtml+=("<tr >"
+						+"<td>"+(i+1)+"<input type=\"hidden\" value=\""+data[i].cId+"\"></td>"
+						+"<td>"+getSourceName(data[i].statuss)+"</td>"	
+						+"<td>"+(data[i].cSource)+"</td>"	
+						+"<td>"+data[i].createdNo+"</td>"
+						+"<td>"+(data[i].cCustomer==undefined?'--':data[i].cCustomer)+"</td>"						
+						+"<td>"+data[i].cMan+"</td>"
+						+"<td>"+data[i].cPhone+"</td>"
+						+"<td>"+(data[i].cGoods==undefined?'':data[i].cGoods)+"</td>"						
+						+"<td>"+data[i].gmtCreated+"</td>"
+						+"</tr>");				
+			}	 		
+			$("#persionTable").html(ihtml);
+			return;	
+	}
+	$("#persionTable").html('<tr><td colspan=\"8\"><font color=\"red\">没有查询到数据。</font></td></tr>');
+	
+}
+
+function reloadData(){
+	AVRIL.queryClueRepeatList(queryClueRepeatListBack, searchBusinessId, searchCustomer, searchPhone);	
+}
+
+</script>
+
+</head>
+
+<body  style="overflow: scroll;overflow-x:hidden">
+<table class="table table-striped">
+		  <thead>
+		    <tr>
+		      <th width="40px"></th>
+		      <th width="70px">线索状态</th>
+		      <th width="80px">线索来源</th>
+		      <th width="90px">提交人员</th>
+		      <th width="180px">企业名称</th>
+		      <th width="90px">联系人</th>
+		      <th width="160px">联系电话</th>
+		      <th width="180px">意向产品</th>
+		      <th width="120px">提交时间</th>
+		    </tr>
+		    
+		  </thead>
+	  	<tbody id="persionTable">    
+	  	</tbody>  
+</table>
+	
+</body>
+</html>

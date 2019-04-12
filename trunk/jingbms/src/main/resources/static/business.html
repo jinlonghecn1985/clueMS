@@ -213,17 +213,29 @@ margin-top: 10px;
 		$frommailNote = $('#frommailNote');
 		if($frommailNote.val()==undefined || $frommailNote.val().length==0){
 			$frommailNote.parent().addClass('has-error');
-			showJLError('请填写商机备注信息后重试！');
-			haserror = true;
+			showJLError('请填写商机备注信息后重试！');			
 		}else{			
 			$frommailNote.parent().removeClass('has-error');
+			$('#closeModel').modal({
+				keyboard : true,
+				show : true
+			});			
+		}		
+	}
+	
+	function doCloseBusiness(){
+		var params = {};
+		params.bId = bid;
+		params.bNote = $('#frommailNote').val();
+		AVRIL.closeBusiness(params, closeBusinessBack);		
+	}
+	
+	function closeBusinessBack(data){
+		if(data){
+			$('#closeModel').modal('hide');
+			closeWin();
 		}
-		if(!haserror){
-			var params = {};
-			params.bId = bid;         
-			params.bnote = $frommailNote.val();
-			AVRIL.saveBusinessInfo2(saveBusinessInfoBack, params);			
-		}
+		
 	}
 	
 	function showQCC(){
@@ -366,7 +378,27 @@ margin-top: 10px;
 			</div>
 		</div>
 	</form>
-
+<div id="closeModel" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">×</span><span class="sr-only">关闭</span>
+					</button>
+					<h4 class="modal-title" id="checkTitle">温馨提示</h4>
+				</div>
+				<div id="checkContent" class="modal-body">
+				<input type="hidden" id="fromDelID" value="0" />
+					<p id="delTitle">关闭商机操作将不可恢复,请慎重!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button onclick="doCloseBusiness();" type="button"
+						class="btn btn-primary">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 <script type="text/javascript">
 

@@ -156,7 +156,11 @@
 	FROM tb_clue_info 
 	<where>
 		<include refid="sql_clueInfo_query_nowhere"/>
+		<if test="clueInfo.notcId != null">AND c_id != #{clueInfo.notcId} </if>
+		<if test="clueInfo.accurateCustomer != null">AND c_customer = #{clueInfo.accurateCustomer} </if>
+		<if test="clueInfo.accuratePhone != null">AND c_phone like CONCAT('%', #{clueInfo.accuratePhone}, '%') </if>
 	</where>
+	order by gmt_created desc
 </select>
 
 <!-- 根据线索信息属性与分页信息分页查询线索信息信息 -->
@@ -167,6 +171,14 @@
 	<where>
 		<include refid="sql_clueInfo_query_nowhere"/>
 	</where>
+</select>
+
+<select id="queryClueRepeatCount" resultType="java.util.Map">
+select t.cn cid, nameRepeat, phoneRepeat from (
+	select 1 as cn,  count(1) nameRepeat from tb_clue_info where c_id!=#{cId} <if test="cCustomer != null">and c_customer = #{cCustomer}</if>
+) t LEFT OUTER JOIN (
+	select 1 as cn,  count(1) phoneRepeat from tb_clue_info where c_id!=#{cId} <if test="cPhone != null"> and c_phone like CONCAT('%', #{cPhone}, '%')</if>
+) h on t.cn = h.cn
 </select>
 
 </mapper>   

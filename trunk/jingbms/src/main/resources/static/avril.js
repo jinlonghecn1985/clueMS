@@ -176,6 +176,25 @@ function showJLError(message){
 		}, false);
 	};
 	
+	AVRIL.queryClueRepeatList=function(fn, searchBusinessId, searchCustomer, searchPhone){
+		
+		var sou = "";
+		if(searchBusinessId!=undefined && searchBusinessId.length>0){
+			sou = "&notcId="+searchBusinessId;
+		}
+		if(searchCustomer!=undefined && searchCustomer.length>0){
+			sou += ("&accurateCustomer="+searchCustomer);
+		}
+		if(searchPhone!=undefined && searchPhone.length>0){
+			sou += ("&accuratePhone="+searchPhone);
+		}
+		myAjax("/clueinfo?1=1"+sou, "get", {}, function(data){			
+			if(fn){
+				fn(data);
+			}
+		}, false);
+	};
+	
 	AVRIL.loadDicList=function(fn, pn, ps, searchWord, searchStatus){
 		var sou = "";
 		if(searchWord!=undefined && searchWord.length>0){
@@ -311,7 +330,23 @@ function showJLError(message){
 	};
 	
 	
-	
+	AVRIL.queryBusinessRepeatList=function(fn, searchBusinessId, searchCustomer, searchPhone){		
+		var sou = "";
+		if(searchBusinessId!=undefined && searchBusinessId.length>0){
+			sou = "&notbId="+searchBusinessId;
+		}
+		if(searchCustomer!=undefined && searchCustomer.length>0){
+			sou += ("&accurateCustomer="+searchCustomer);
+		}
+		if(searchPhone!=undefined && searchPhone.length>0){
+			sou += ("&accuratePhone="+searchPhone);
+		}
+		myAjax("/businessinfo?1=1"+sou, "get", {}, function(data){			
+			if(fn){
+				fn(data);
+			}
+		}, false);
+	};
 	
 	AVRIL.getBusinessInfo= function(bid, fn){
 		myAjax("/businessinfo/"+bid, "get", null, function(data){

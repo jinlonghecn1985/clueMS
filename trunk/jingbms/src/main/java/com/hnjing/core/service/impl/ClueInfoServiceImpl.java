@@ -1,5 +1,6 @@
 package com.hnjing.core.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.hnjing.core.model.dao.ClueInfoMapper;
 import com.hnjing.core.model.entity.ClueInfo;
 import com.hnjing.core.service.ClueInfoService;
+import com.hnjing.core.service.impl.bo.ClueRepeatBo;
 import com.hnjing.utils.Constant;
 import com.hnjing.utils.DateUtil;
 import com.hnjing.utils.file.office.ExcelWriteUtil;
@@ -198,6 +200,54 @@ public class  ClueInfoServiceImpl implements ClueInfoService {
 			return "商机成交";
 		}
 		return "未定义";
+	}
+
+	/*
+	 * @Title: queryClueInfoRepeatForPage
+	 * @Description: 
+	 * @param @param pagenum
+	 * @param @param pagesize
+	 * @param @param sort
+	 * @param @param clueInfo
+	 * @param @return    参数  
+	 * @author Jinlong He
+	 * @param pagenum
+	 * @param pagesize
+	 * @param sort
+	 * @param clueInfo
+	 * @return
+	 * @see com.hnjing.core.service.ClueInfoService#queryClueInfoRepeatForPage(java.lang.Integer, java.lang.Integer, java.lang.String, com.hnjing.core.model.entity.ClueInfo)
+	 */ 
+	@Override
+	public Map<String, Object> queryClueInfoRepeatForPage(Integer pagenum, Integer pagesize, String sort,
+			ClueInfo clueInfo) {
+		HashMap<String, Object> returnMap = new HashMap<String, Object>();
+		PageBounds pageBounds = pageService.getPageBounds(pagenum, pagesize, null, true, false);
+		pageBounds.setOrdersByJson(sort, ClueInfo.class);
+		List<ClueInfo> entityList = clueInfoMapper.queryClueInfoForPage(pageBounds, clueInfo);
+		if(null!=sort && sort.length()>0){
+			pageBounds.setOrdersByJson(sort, ClueInfo.class);
+		}
+		
+		PageList<ClueInfo> pagelist = (PageList<ClueInfo>) entityList;
+		List<ClueRepeatBo> dataList = new ArrayList<ClueRepeatBo>();
+		if(entityList!=null && entityList.size()>0) {
+			for(ClueInfo ci : entityList) {
+				ClueRepeatBo cib = new ClueRepeatBo();
+				cib.setClueInfo(ci);
+				Map<String, Object> countMap = clueInfoMapper.queryClueRepeatCount(ci.getCId(), ci.getCCustomer()==null?"hejinlong@hnjing.com":ci.getCCustomer(), ci.getCPhone()==null?"hejinlong@hnjing.com":ci.getCPhone());
+				cib.setRepeatNameCount(((Long)countMap.get("nameRepeat")).intValue());
+				cib.setRepeatPhoneCount(((Long)countMap.get("phoneRepeat")).intValue());
+				if(ci!=null && ci.getCPhone()!=null && ci.getCPhone().length()>7) {
+					ci.setCPhone(ci.getCPhone().substring(0, 3)+"****"+ci.getCPhone().substring(ci.getCPhone().length()-4));
+				}
+				dataList.add(cib);
+			}
+		}
+		returnMap.put(Constant.PAGELIST, dataList);
+		returnMap.put(Constant.PAGINATOR, pagelist.getPaginator());
+		
+		return returnMap;
 	}
 
 

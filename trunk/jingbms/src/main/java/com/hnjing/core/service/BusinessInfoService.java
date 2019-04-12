@@ -60,7 +60,10 @@ public interface BusinessInfoService {
 	 * @return List<BusinessInfo>
 	 */
 	Map<String, Object> queryBusinessInfoForPage(Integer pagenum, Integer pagesize, String sort, BusinessInfo businessInfo);
+	
+	Map<String, Object> queryBusinessInfoRepeatForPage(Integer pagenum, Integer pagesize, String sort, BusinessInfo businessInfo);
 	 
+	
 	 /**
 	 * @Title: queryBusinessInfoByProperty
 	 * @Description:根据属性查询商机信息

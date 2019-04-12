@@ -4,6 +4,8 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hnjing.config.validation.BeanValidator;
 import com.hnjing.config.web.exception.AuthorityException;
 import com.hnjing.config.web.exception.NotFoundException;
+import com.hnjing.config.web.exception.ParameterException;
 import com.hnjing.core.controller.bo.UserInfoBo;
 import com.hnjing.core.model.entity.ClueInfo;
 import com.hnjing.core.service.BMSService;
@@ -93,9 +96,37 @@ public class ClueInfoController{
 	
 	@ApiOperation(value = "查询 根据线索信息属性查询线索信息信息列表", notes = "根据线索信息属性查询线索信息信息列表")
 	@RequestMapping(value = "/clueinfo", method = RequestMethod.GET)
-	public Object queryClueInfoList(HttpServletResponse response,
-			ClueInfo clueInfo) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {		
-		return clueInfoService.queryClueInfoByProperty(ClassUtil.transBean2Map(clueInfo, false));
+	public Object queryClueInfoList(HttpServletResponse response, HttpServletRequest request,
+			ClueInfo clueInfo, Integer notcId, String accurateCustomer, String accuratePhone) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {	
+		
+		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
+		if(ui.getUserInfo()==null) {
+			throw new AuthorityException("用户权限错误");
+		}
+		boolean hasParam = false;
+		Map<String, Object> query = ClassUtil.transBean2Map(clueInfo, false);
+		if(query==null) {
+			query = new HashMap<String, Object>();
+		}
+		if(notcId!=null && notcId.intValue()>0) {
+			query.put("notcId", notcId);
+			ClueInfo ci = clueInfoService.queryClueInfoByCId(notcId);
+			if(null == ci){
+				throw new NotFoundException("线索信息");
+			}
+			if(accurateCustomer!=null && accurateCustomer.trim().length()>0) {
+				query.put("accurateCustomer", ci.getCCustomer()); hasParam = true;
+			}
+			if(accuratePhone!=null && accuratePhone.trim().length()>0) {
+				query.put("accuratePhone", ci.getCPhone()); hasParam = true;
+			}
+			if(!hasParam) {
+				throw new ParameterException("accurateCustomer, accuratePhone", "企业名称或联系电话至少传入一个。");
+			}
+		}else {
+			query.put("accurateCustomer", "hejinlong@hnjing.com");
+		}	
+		return clueInfoService.queryClueInfoByProperty(query);
 	}
 	
 	@ApiOperation(value = "查询分页 根据线索信息属性分页查询线索信息信息列表", notes = "根据线索信息属性分页查询线索信息信息列表")
@@ -112,7 +143,7 @@ public class ClueInfoController{
 			clueInfo.setCreatedNo(ui.getUserCode());
 		}
 		
-		return clueInfoService.queryClueInfoForPage(pagenum, pagesize, sort, clueInfo);
+		return clueInfoService.queryClueInfoRepeatForPage(pagenum, pagesize, sort, clueInfo);
 	}
 	
 	@ApiOperation(value = "导出线索资料", notes = "根据线索信息属性分页查询线索信息信息列表")

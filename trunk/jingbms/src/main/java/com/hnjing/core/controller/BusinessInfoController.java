@@ -4,6 +4,8 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hnjing.config.validation.BeanValidator;
 import com.hnjing.config.web.exception.AuthorityException;
 import com.hnjing.config.web.exception.NotFoundException;
+import com.hnjing.config.web.exception.ParameterException;
 import com.hnjing.core.controller.bo.BusinessBo;
 import com.hnjing.core.controller.bo.UserInfoBo;
 import com.hnjing.core.model.entity.BusinessInfo;
@@ -108,9 +111,37 @@ public class BusinessInfoController{
 	
 	@ApiOperation(value = "查询 根据商机信息属性查询商机信息信息列表", notes = "根据商机信息属性查询商机信息信息列表")
 	@RequestMapping(value = "/businessinfo", method = RequestMethod.GET)
-	public Object queryBusinessInfoList(HttpServletResponse response,
-			BusinessInfo businessInfo) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {		
-		return businessInfoService.queryBusinessInfoByProperty(ClassUtil.transBean2Map(businessInfo, false));
+	public Object queryBusinessInfoList(HttpServletResponse response, HttpServletRequest request,
+			BusinessInfo businessInfo, Integer notbId, String accurateCustomer, String accuratePhone) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {		
+		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
+		if(ui.getUserInfo()==null) {
+			throw new AuthorityException("用户权限错误");
+		}
+		boolean hasParam = false;
+		Map<String, Object> query = ClassUtil.transBean2Map(businessInfo, false);
+		if(query==null) {
+			query = new HashMap<String, Object>();
+		}
+		if(notbId!=null && notbId.intValue()>0) {
+			query.put("notbId", notbId);
+			BusinessInfo bi = businessInfoService.queryBusinessInfoByBId(notbId);
+			if(null == bi){
+				throw new NotFoundException("商机信息");
+			}
+			if(accurateCustomer!=null && accurateCustomer.trim().length()>0) {
+				query.put("accurateCustomer", bi.getCCustomer()); hasParam = true;
+			}
+			if(accuratePhone!=null && accuratePhone.trim().length()>0) {
+				query.put("accuratePhone", bi.getcPhone()); hasParam = true;
+			}
+			if(!hasParam) {
+				throw new ParameterException("accurateCustomer, accuratePhone", "企业名称或联系电话至少传入一个。");
+			}
+		}else {
+			query.put("accurateCustomer", "hejinlong@hnjing.com");
+		}
+		
+		return businessInfoService.queryBusinessInfoByProperty(query);
 	}
 	
 	@ApiOperation(value = "查询分页 根据商机信息属性分页查询商机信息信息列表", notes = "根据商机信息属性分页查询商机信息信息列表")
@@ -126,7 +157,7 @@ public class BusinessInfoController{
 		if(ui.getUserInfo()!=null && ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
 			businessInfo.setGmtCreatedUser(ui.getUserCode());
 		}
-		return businessInfoService.queryBusinessInfoForPage(pagenum, pagesize, sort, businessInfo);
+		return businessInfoService.queryBusinessInfoRepeatForPage(pagenum, pagesize, sort, businessInfo);
 	}
 	
 	

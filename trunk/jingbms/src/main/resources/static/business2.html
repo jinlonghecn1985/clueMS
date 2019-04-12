@@ -249,7 +249,7 @@ margin-top: 10px;
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button onclick="doCloseBusiness()" type="button"
+					<button onclick="doCloseBusiness();" type="button"
 						class="btn btn-primary">确定</button>
 				</div>
 			</div>
@@ -293,7 +293,6 @@ margin-top: 10px;
 		if($fromNote.val()==undefined || $fromNote.val().length==0){
 			$fromNote.parent().addClass('has-error');
 			showJLError('请填写反馈内容后重试！');
-			haserror = true;
 		}else{
 			$fromNote.parent().removeClass('has-error');
 			$('#closeModel').modal({

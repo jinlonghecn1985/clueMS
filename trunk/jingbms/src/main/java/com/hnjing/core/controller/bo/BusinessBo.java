@@ -18,7 +18,7 @@ import com.hnjing.core.model.entity.ClueInfo;
 
 /**
  * @ClassName: BusinessBo
- * @Description: TODO
+ * @Description: 商机信息，对应线索信息
  * @author: Jinlong He
  * @date: 2019年3月22日 下午5:23:13
  */

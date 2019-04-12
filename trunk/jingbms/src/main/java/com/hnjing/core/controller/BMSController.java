@@ -247,7 +247,7 @@ public class BMSController {
 		if(null == tempBusinessInfo){
 			throw new NotFoundException("商机信息");
 		}	
-		if(tempBusinessInfo.getSjStatus().intValue()!=1) {
+		if(tempBusinessInfo.getSjStatus().intValue()==7 || tempBusinessInfo.getSjStatus().intValue()==8) {
 			throw new ParameterException("businessinfo", "商机状态已变更，无法执行此操作。");
 		}	
 		BusinessInfo businessInfo = new BusinessInfo();

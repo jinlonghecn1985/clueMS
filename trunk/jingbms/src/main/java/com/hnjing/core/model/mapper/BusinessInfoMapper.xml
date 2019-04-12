@@ -182,11 +182,15 @@
 	FROM tb_business_info 
 	<where>
 		<include refid="sql_businessInfo_query_nowhere"/>
+		<if test="businessInfo.notbId != null">AND b_id != #{businessInfo.notbId} </if>
+		<if test="businessInfo.accurateCustomer != null">AND c_customer = #{businessInfo.accurateCustomer} </if>
+		<if test="businessInfo.accuratePhone != null">AND c_phone like CONCAT('%', #{businessInfo.accuratePhone}, '%') </if>
 	</where>
+	order by gmt_created desc
 </select>
 
 <select id="queryBusinessInfoBoByProperty"  resultMap="BusinessInfoBoResultMap" parameterType="java.util.Map">
-	select b.*, c.c_source, c.c_message, c.department from_department, c.employee from_employee, c.c_type, c.c_reason, c.c_note from (
+	select b.*, c.c_man, c.c_source, c.c_message, c.department from_department, c.employee from_employee, c.c_type, c.c_reason, c.c_note from (
 	SELECT 
 	<include refid="sql_businessInfo_item"/>
 	FROM tb_business_info 
@@ -204,6 +208,14 @@
 	<where>
 		<include refid="sql_businessInfo_query_nowhere"/>
 	</where>
+</select>
+
+<select id="queryBusinessRepeatCount" resultType="java.util.Map">
+select t.cn cid, nameRepeat, phoneRepeat from (
+	select 1 as cn,  count(1) nameRepeat from tb_business_info where b_id!=#{bId} <if test="cCustomer != null">and c_customer = #{cCustomer}</if>
+) t LEFT OUTER JOIN (
+	select 1 as cn,  count(1) phoneRepeat from tb_business_info where b_id!=#{bId} <if test="cPhone != null"> and c_phone like CONCAT('%', #{cPhone}, '%')</if>
+) h on t.cn = h.cn
 </select>
 
 </mapper>   
