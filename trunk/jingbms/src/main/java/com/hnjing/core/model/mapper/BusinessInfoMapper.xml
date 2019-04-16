@@ -23,6 +23,7 @@
 	<result column="industry1" property="industry1"/>
 	<result column="industry2" property="industry2"/>
 	<result column="bnote" property="bnote"/>
+	<result column="saletoken" property="saletoken"/>
 	<result column="gmt_created" property="gmtCreated"/>
 	<result column="gmt_created_user" property="gmtCreatedUser"/>
 	<result column="gmt_modify" property="gmtModify"/>
@@ -45,7 +46,7 @@
 
 
 <sql id="sql_businessInfo_item">
-	b_id, clue_id, erp_id, valid_info, c_customer, c_phone, city, has_in, is_new, identifier, employee, department, c_goods, business, sj_status, industry_jw, industry1, industry2, bnote, gmt_created, gmt_created_user, gmt_modify, gmt_modify_user
+	b_id, clue_id, erp_id, valid_info, c_customer, c_phone, city, has_in, is_new, identifier, employee, department, c_goods, business, sj_status, industry_jw, industry1, industry2, bnote, saletoken, gmt_created, gmt_created_user, gmt_modify, gmt_modify_user
 </sql>
        
 <!-- 查询条件 无WHERE -->
@@ -71,6 +72,8 @@
 		<if test="businessInfo.industry1 != null">AND industry1 like concat(#{businessInfo.industry1}, '%') </if>
 		<if test="businessInfo.industry2 != null">AND industry2 like concat(#{businessInfo.industry2}, '%') </if>
 		<if test="businessInfo.bnote != null">AND bnote like concat(#{businessInfo.bnote}, '%') </if>
+		<if test="businessInfo.saletoken != null">AND saletoken=#{businessInfo.saletoken} </if>
+		
 		<if test="businessInfo.gmtCreatedUser != null">AND gmt_created_user like concat(#{businessInfo.gmtCreatedUser}, '%') </if>
 		<if test="businessInfo.gmtModifyUser != null">AND gmt_modify_user = #{businessInfo.gmtModifyUser} </if>
 	</trim>
@@ -102,6 +105,7 @@
 		<if test="industry1 != null"> industry1,</if>
 		<if test="industry2 != null"> industry2,</if>
 		<if test="bnote != null"> bnote,</if>
+		<if test="saletoken != null"> saletoken,</if>		
 		gmt_created,
 		<if test="gmtCreatedUser != null"> gmt_created_user,</if>
 		gmt_modify,
@@ -127,6 +131,7 @@
 		<if test="industry1 != null"> #{industry1},</if>
 		<if test="industry2 != null"> #{industry2},</if>
 		<if test="bnote != null"> #{bnote},</if>
+		<if test="saletoken != null"> #{saletoken},</if>
 		now(),
 		<if test="gmtCreatedUser != null"> #{gmtCreatedUser},</if>
 		now(),
@@ -156,6 +161,8 @@
 		<if test="industry1 != null"> industry1 = #{industry1},</if>
 		<if test="industry2 != null"> industry2 = #{industry2},</if>
 		<if test="bnote != null"> bnote = #{bnote},</if>
+		<if test="saletoken != null and saletoken.indexOf('hejinlong') != 0"> saletoken=#{saletoken},</if>
+		<if test="saletoken != null and saletoken.indexOf('hejinlong') == 0"> saletoken = null,</if>
 		<if test="gmtCreatedUser != null"> gmt_created_user = #{gmtCreatedUser},</if>
 		gmt_modify = now(),
 		<if test="gmtModifyUser != null"> gmt_modify_user = #{gmtModifyUser},</if>

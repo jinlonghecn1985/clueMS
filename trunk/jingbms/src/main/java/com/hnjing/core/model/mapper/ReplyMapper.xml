@@ -20,7 +20,7 @@
 <sql id="sql_reply_query_nowhere">
 	<trim prefix=" " prefixOverrides="AND|OR">
 		<if test="reply.id != null">AND id = #{reply.id} </if>
-		<if test="reply.bId != null">AND b_id = #{reply.bId} </if>
+		<if test="reply.BId != null">AND b_id = #{reply.BId} </if>
 		<if test="reply.content != null">AND content like concat(#{reply.content}, '%') </if>
 		<if test="reply.employee != null">AND employee like concat(#{reply.employee}, '%') </if>
 		<if test="reply.createdMan != null">AND created_man like concat(#{reply.createdMan}, '%') </if>
@@ -83,6 +83,7 @@
 	<where>
 		<include refid="sql_reply_query_nowhere"/>
 	</where>
+	order by gmt_created desc
 </select>
 
 <!-- 根据销售回复属性与分页信息分页查询销售回复信息 -->

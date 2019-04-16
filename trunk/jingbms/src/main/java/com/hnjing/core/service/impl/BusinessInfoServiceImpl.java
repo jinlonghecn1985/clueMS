@@ -265,5 +265,26 @@ public class  BusinessInfoServiceImpl implements BusinessInfoService {
 		return returnMap;
 	}
 
+	/*
+	 * @Title: queryBusinessInfoBySaleToken
+	 * @Description: TODO
+	 * @param @param saleToken
+	 * @param @return    参数  
+	 * @author Jinlong He
+	 * @param saleToken
+	 * @return
+	 * @see com.hnjing.core.service.BusinessInfoService#queryBusinessInfoBySaleToken(java.lang.String)
+	 */ 
+	@Override
+	public BusinessInfo queryBusinessInfoBySaleToken(String saleToken) {
+		Map<String, Object> query = new HashMap<String, Object>();
+		query.put("saletoken", saleToken);
+		List<BusinessInfoBo> rets = queryBusinessInfoBoByProperty(query);
+		if(rets!=null && rets.size()>0) {
+			return rets.get(0);
+		}
+		return null;
+	}
+
 
 }

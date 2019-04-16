@@ -96,15 +96,16 @@ public class ReplyController{
 	
 	@ApiOperation(value = "查询 根据销售回复属性查询销售回复信息列表", notes = "根据销售回复属性查询销售回复信息列表")
 	@RequestMapping(value = "/reply", method = RequestMethod.GET)
-	public Object queryReplyList(HttpServletResponse response, HttpServletRequest request,
+	public Object queryReplyList(HttpServletResponse response, 
 			Reply reply) throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {	
-		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
-		if(ui.getUserInfo()==null) {
-			throw new AuthorityException("用户权限错误");
-		}
+//		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
+//		if(ui.getUserInfo()==null) {
+//			throw new AuthorityException("用户权限错误");
+//		}
 		if(reply==null || reply.getBId()==null) {
-			throw new ParameterException("bid", "商机标识必传！");
+			throw new ParameterException("bId", "商机标识必传！");
 		}
+		System.out.println("bid:"+reply.getBId()+""+ ClassUtil.transBean2Map(reply, false));
 		return replyService.queryReplyByProperty(ClassUtil.transBean2Map(reply, false));
 	}
 	

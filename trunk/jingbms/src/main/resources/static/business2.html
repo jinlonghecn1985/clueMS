@@ -60,16 +60,25 @@ margin-top: 10px;
 
 <script type="text/javascript">
 	var bid;
+	var saletoken = '';
 	var hasp = getQueryStringByName('p');
 	$(document).ready(function() {		
-		bid = getQueryStringByName('bid');		
+			
+		bid = getQueryStringByName('bid');			
 		if(bid==undefined || bid.length==0){
-// 			window.location.href="clueadd.html";
+			saletoken = getQueryStringByName('sale');
+			if(saletoken==undefined || saletoken.length==0){
+				window.location.href="index.html";
+			}else{
+				AVRIL.getBusinessInfoBySaleToken(saletoken, getClueInfoBack);
+			}
+		}else{
+			AVRIL.getBusinessInfo(bid, getClueInfoBack);
 		}
 		if(hasp!=undefined && hasp=='12'){
 			$('#closeButton').before('<button class="btn" id="closeParent" type="button" onclick="closeWin();" >关闭窗口</button>&nbsp;');
-		}	
-		AVRIL.getBusinessInfo(bid, getClueInfoBack);		
+		}
+			
 	});
 	
 	
@@ -106,7 +115,7 @@ margin-top: 10px;
 			params.bId = bid;
 			params.business = business;
 			params.bnote = $fromNote.val();
-			
+			params.saletoken = saletoken;
 			AVRIL.dealBusiness(params, dealBusinessBack);			
 		}
 	}
@@ -132,7 +141,8 @@ margin-top: 10px;
 		if(!haserror){
 			var params = {};
 			params.bId = bid;         
-			params.content = $fromNote.val();			
+			params.content = $fromNote.val();	
+			params.saletoken = saletoken;
 			AVRIL.saveReplyInfo(saveReplyInfoBack, params);			
 		}
 	}
@@ -140,7 +150,7 @@ margin-top: 10px;
 	function saveReplyInfoBack(data){
 		if(data!=undefined && data.bId!=undefined){
 			showJLSuccess('记录反馈内容成功！');
-			closeWin();
+			AVRIL.queryReplyListByBid(queryReplyListByBidBack, bid);
 		}
 	}
 	
@@ -149,7 +159,7 @@ margin-top: 10px;
 	}
 	
 	function closeWin(){	
-		if(parent){
+		if(hasp!=undefined && hasp=='12' && parent){
 			parent.window.hiddenBusinessModal();
 		}
 	}
@@ -227,9 +237,11 @@ margin-top: 10px;
 		</div>
 		
 		<div class="panel panel-info">
-			<div class="panel-heading">沟通记录</div>
+			<div class="panel-heading">反馈记录</div>
+			<div class="panel-body" id="replyPanel"></div>
 		</div>
-		
+			
+			
 		</div>
 	</form>
 
@@ -260,6 +272,7 @@ margin-top: 10px;
 
 	function getClueInfoBack(data){
 		if (data != undefined && data.clueInfo!=undefined && data.clueInfo.cCustomer!=undefined && data.clueInfo.cCustomer.length > 0) {
+			bid = data.businessInfo.bId;
 			$('#pageName').html(data.clueInfo.cCustomer);
 			$('#pageMan').html(data.clueInfo.cMan);
 			$('#pagePhone').html(data.clueInfo.cPhone);
@@ -282,10 +295,22 @@ margin-top: 10px;
 				chtml+=("<label class=\"checkbox-inline\"><input type=\"checkbox\" value=\""+goodss[i]+"\">"+goodss[i]+"</label>")
 			}
 			$('#fromProduct').html(chtml);
-			
+			AVRIL.queryReplyListByBid(queryReplyListByBidBack, data.businessInfo.bId);
 		}else{
-			window.location.href="clue_add.html";
+			window.location.href="index.html";
 		}
+	}
+	
+	function queryReplyListByBidBack(data){
+		var rhtml = "";
+		if (data != undefined && data.length>0){
+			for(var i=0; i<data.length; i++){
+				rhtml += ("<div class=\"comment\"><div class=\"content\"><div class=\"pull-right text-muted\">"
+						+ data[i].gmtCreated+"</div><div><strong>"+ data[i].createdMan+"</strong> <span class=\"text-muted\">反馈&nbsp;</span><strong>"+ data[i].employee
+						+"</strong></div><div class=\"text\">"+ data[i].content+"</div></div></div>");
+			}			
+		}
+		$("#replyPanel").html(rhtml);
 	}
 	
 	function doCloseAction(){
@@ -307,6 +332,7 @@ margin-top: 10px;
 		var params = {};
 		params.bId = bid;
 		params.bNote = $('#fromNote').val();
+		params.saletoken = saletoken;
 		AVRIL.closeBusiness(params, closeBusinessBack);		
 	}
 	

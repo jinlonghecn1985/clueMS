@@ -200,20 +200,22 @@ public class BMSController {
 	@ApiOperation(value = "完成商机信息信息", notes = "完成商机信息信息")
 	@RequestMapping(value = "/bmsDealBusiness/{bId:.+}", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public Object dealBusinessInfo(HttpServletResponse response, HttpServletRequest request,
-			@PathVariable Integer bId, @ApiParam(value = "businessInfo") @RequestBody BusinessInfo businessInfo) 
+			@PathVariable Integer bId, @ApiParam(value = "businessInfo") @RequestBody BusinessInfo businessInfo, String sale) 
 					throws AuthorityException {		
-		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
-		if(ui.getUserInfo()==null) {
-			throw new AuthorityException("用户权限错误");
-		}
-		if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
-			throw new AuthorityException("用户权限不够");
-		}
-		
-		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);		
+		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));		
+		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);	
 		if(null == tempBusinessInfo){
 			throw new NotFoundException("商机信息");
-		}
+		}		
+		if(sale==null || !sale.equals(tempBusinessInfo.getSaletoken())) {
+			if(ui.getUserInfo()==null) {
+				throw new AuthorityException("用户权限错误");
+			}
+			if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
+				throw new AuthorityException("用户权限不够");
+			}	
+		}	
+		
 		if(tempBusinessInfo.getSjStatus().intValue()!=1) {
 			throw new ParameterException("businessinfo", "商机状态已变更，无法执行此操作。");
 		}
@@ -221,31 +223,34 @@ public class BMSController {
 		BusinessInfo businessInfo2 = new BusinessInfo();
 		businessInfo2.setClueId(tempBusinessInfo.getClueId());
 		businessInfo2.setBId(tempBusinessInfo.getBId());
-		businessInfo2.setGmtModifyUser(ui.getUserName());
+		businessInfo2.setGmtModifyUser((ui==null||ui.getUserInfo()==null)?tempBusinessInfo.getEmployee():ui.getUserName());
 		businessInfo2.setBnote(businessInfo.getBnote());
 		businessInfo2.setBusiness(businessInfo.getBusiness());
 		businessInfo2.setSjStatus(8);
+		businessInfo2.setSaletoken("hejinlong01");
 		return bmsService.dealBusiness(businessInfo2);
 	}
 	
 	@ApiOperation(value = "关闭商机信息信息", notes = "关闭商机信息信息")
 	@RequestMapping(value = "/bmsBusiness/{bId:.+}", method = RequestMethod.DELETE, produces = "application/json; charset=utf-8")
 	public Object closeBusinessInfo(HttpServletResponse response, HttpServletRequest request,
-			@PathVariable Integer bId, @RequestParam(value = "bNote", required = true) String bNote) 
+			@PathVariable Integer bId, @RequestParam(value = "bNote", required = true) String bNote, String sale) 
 					throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		if(bNote==null || bNote.length()<2) {
 			throw new ParameterException("bNote", "商机关闭原因必传，且长度至少2位！");
-		}
-		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
-		if(ui.getUserInfo()==null) {
-			throw new AuthorityException("用户权限错误");
-		}
-		if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
-			throw new AuthorityException("用户权限不够");
 		}		
-		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);		
+		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
+		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);	
 		if(null == tempBusinessInfo){
 			throw new NotFoundException("商机信息");
+		}		
+		if(sale==null || !sale.equals(tempBusinessInfo.getSaletoken())) {
+			if(ui.getUserInfo()==null) {
+				throw new AuthorityException("用户权限错误");
+			}
+			if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
+				throw new AuthorityException("用户权限不够");
+			}	
 		}	
 		if(tempBusinessInfo.getSjStatus().intValue()==7 || tempBusinessInfo.getSjStatus().intValue()==8) {
 			throw new ParameterException("businessinfo", "商机状态已变更，无法执行此操作。");
@@ -254,36 +259,44 @@ public class BMSController {
 		businessInfo.setBId(bId);
 		businessInfo.setClueId(tempBusinessInfo.getClueId());
 		businessInfo.setBnote(bNote);
-		businessInfo.setGmtModifyUser(ui.getUserName());		
+		businessInfo.setGmtModifyUser((ui==null||ui.getUserInfo()==null)?tempBusinessInfo.getEmployee():ui.getUserName());	
+		businessInfo.setSaletoken("hejinlong01");
 		return bmsService.closeBusiness(businessInfo);
 	}
 	
 	@ApiOperation(value = "回复商机沟通信息", notes = "回复商机沟通信息")
 	@RequestMapping(value = "/bmsReply/{bId:.+}", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public Object addReplyInfo(HttpServletResponse response, HttpServletRequest request,
-			@PathVariable Integer bId, @ApiParam(value = "reply") @RequestBody Reply reply) 
+			@PathVariable Integer bId, @ApiParam(value = "reply") @RequestBody Reply reply, String sale) 
 					throws AuthorityException {
 		if(reply==null || reply.getContent()==null) {
 			throw new ParameterException("content", "销售反馈必须填写");
 		}
 		UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
-		if(ui.getUserInfo()==null) {
-			throw new AuthorityException("用户权限错误");
-		}
-		if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
-			throw new AuthorityException("用户权限不够");
-		}
-		reply.setCreatedMan(ui.getUserName());		
-		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);		
+		BusinessInfo tempBusinessInfo = businessInfoService.queryBusinessInfoByBId(bId);	
 		if(null == tempBusinessInfo){
 			throw new NotFoundException("商机信息");
+		}
+		if(sale!=null && sale.equals(tempBusinessInfo.getSaletoken())) {
+			reply.setCreatedMan(tempBusinessInfo.getEmployee());	
+			reply.setEmployee(tempBusinessInfo.getGmtModifyUser());
+		}else {
+			if(ui.getUserInfo()!=null) {
+				if(ui.getUserInfo().getUlevel()!=null && ui.getUserInfo().getUlevel().intValue()==1) {
+					throw new AuthorityException("用户权限不够");
+				}
+				
+				reply.setCreatedMan(ui.getUserName());	
+				reply.setEmployee(tempBusinessInfo.getGmtModifyUser());
+			}else {
+				throw new AuthorityException("用户权限错误");
+			}			
 		}	
+		
 		if(tempBusinessInfo.getSjStatus().intValue()!=1) {
 			throw new ParameterException("businessinfo", "商机状态已变更，无法执行此操作。");
 		}	
 		reply.setBId(bId);
-		reply.setEmployee(tempBusinessInfo.getEmployee());
-			
 		return bmsService.followBusiness(reply);
 	}
 	

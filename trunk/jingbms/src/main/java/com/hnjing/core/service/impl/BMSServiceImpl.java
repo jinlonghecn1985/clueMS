@@ -14,6 +14,7 @@ package com.hnjing.core.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +52,12 @@ import com.hnjing.utils.MailUtil;
 public class BMSServiceImpl implements BMSService{
 	private static final Logger logger = LoggerFactory.getLogger(BMSServiceImpl.class);
 
+	@Value("${local.host.ip}")
+	private String hostIP;
+	
+	@Value("${server.port}")
+	private String hostPort;
+	
 	@Autowired
 	private ClueInfoService clueInfoService;
 	
@@ -172,6 +180,7 @@ public class BMSServiceImpl implements BMSService{
 		cii.setModifyNo(business.getGmtModifyUser());
 		clueInfoService.modifyClueInfo(cii);
 		business.setSjStatus(1);
+		business.setSaletoken(UUID.randomUUID().toString().replaceAll("-", "").toUpperCase());
 		businessInfoService.modifyBusinessInfo(business);
 		
 		//发送邮件通知
@@ -369,7 +378,7 @@ public class BMSServiceImpl implements BMSService{
 		sb.append("<tr>").append(getTableTitle("下次跟进计划", 120)).append(getTableTD("&nbsp;")).append("</tr>");
 		sb.append("</table>");
 		sb.append("</div>");
-		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#ff0000\">请按规定在收到商机1个小时内按以上模板格式邮件反馈客户跟进情况，感谢您的支持！</font>");		
+		sb.append("&nbsp;&nbsp;&nbsp;&nbsp;<font color=\"#ff0000\">请按规定在收到商机1个小时内按以上模板格式邮件反馈客户跟进情况，或点击<a href=\"http://"+hostIP+("80".equals(hostPort)?"":":"+hostPort)+"/business2.html?sale="+business.getSaletoken()+"\">此处</a>在线反馈跟进情况。感谢您的支持！</font>");		
 		
 		try {				
 			mailUtil.sendSimpleMail(employee.getPersonMail()+((employee.getMailOther()!=null && employee.getMailOther().length()>0)?";"+employee.getMailOther():"")+";shangji@hnjing.com",
@@ -430,7 +439,7 @@ public class BMSServiceImpl implements BMSService{
 			mailUtil.sendSimpleMailNoRecord(userInfo.getUmail(),
 					"【保密】商机管理系统授权码", 
 					"<div>Dear "+userInfo.getUname()+"：</div><div>&nbsp;&nbsp;&nbsp;&nbsp; 您新的授权码为：<font color=\"red\">"+userInfo2.getToken()+"</font></div>"
-					+"<div>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http://192.168.50.175:8088/?t="+userInfo2.getToken()+"\">点击跳转</a></div>"
+					+"<div>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"http://"+hostIP+("80".equals(hostPort)?"":":"+hostPort)+"/?t="+userInfo2.getToken()+"\">点击跳转</a></div>"
 					+author);
 			
 		} catch (ExecutionException e) {

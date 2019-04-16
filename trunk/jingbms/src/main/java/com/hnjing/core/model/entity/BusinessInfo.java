@@ -75,7 +75,10 @@ public class BusinessInfo implements Serializable {
 	private String industry2;	//tb_business_info:industry2  二级行业  
 
 	@Length(min=0, max=512, message="{org.hibernate.validator.constraints.Length.message}")
-	private String bnote;	//tb_business_info:bnote  备注  
+	private String bnote;	//tb_business_info:bnote  备注 
+	
+	@Length(min=0, max=32, message="{org.hibernate.validator.constraints.Length.message}")
+	private String saletoken;
 
 	@NotNull(message="{javax.validation.constraints.NotNull.message}")
 	private java.sql.Timestamp gmtCreated;	//tb_business_info:gmt_created  创建时间  
@@ -472,6 +475,20 @@ public class BusinessInfo implements Serializable {
 	 */
 	public void setcGoods(String cGoods) {
 		this.cGoods = cGoods;
+	}
+
+	/**
+	 * @return the saletoken
+	 */
+	public String getSaletoken() {
+		return saletoken;
+	}
+
+	/**
+	 * @param saletoken the saletoken to set
+	 */
+	public void setSaletoken(String saletoken) {
+		this.saletoken = saletoken;
 	}	
 	
 	

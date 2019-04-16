@@ -311,20 +311,35 @@ function showJLError(message){
 		}, false);
 	};
 	
-	AVRIL.saveReplyInfo= function(fn, params){		
-		myAjaxJson('/bmsReply/'+params.bId, "post", params, function(data){
+	AVRIL.saveReplyInfo= function(fn, params){	
+		var qp = "";
+		if(params.saletoken!=undefined && params.saletoken.length>0){
+			qp = "?sale="+params.saletoken;
+			params.saletoken = '';
+		}
+		myAjaxJson('/bmsReply/'+params.bId+qp, "post", params, function(data){
 			if(fn){fn(data);}	
 		}, false);
 	};
 	
-	AVRIL.closeBusiness= function(params, fn){		
-		myAjaxJson('/bmsBusiness/'+params.bId+"?bNote="+params.bNote, "delete", null, function(data){
+	AVRIL.closeBusiness= function(params, fn){	
+		var qp = "";
+		if(params.saletoken!=undefined && params.saletoken.length>0){
+			qp = "&sale="+params.saletoken;
+			params.saletoken = '';
+		}
+		myAjaxJson('/bmsBusiness/'+params.bId+"?bNote="+params.bNote+qp, "delete", null, function(data){
 			if(fn){fn(data);}	
 		}, false);
 	};
 	
 	AVRIL.dealBusiness= function(params, fn){
-		myAjaxJson('/bmsDealBusiness/'+params.bId, "post", params, function(data){
+		var qp = "";
+		if(params.saletoken!=undefined && params.saletoken.length>0){
+			qp = "?sale="+params.saletoken;
+			params.saletoken = '';
+		}
+		myAjaxJson('/bmsDealBusiness/'+params.bId+qp, "post", params, function(data){
 			if(fn){fn(data);}	
 		}, false);
 	};
@@ -354,6 +369,12 @@ function showJLError(message){
 		}, false);
 	};
 	
+	AVRIL.getBusinessInfoBySaleToken= function(sale, fn){
+		myAjax("/businessinfo/0?sale="+sale, "get", null, function(data){
+			if(fn){fn(data);}
+		}, false);
+	};
+	
 	AVRIL.queryBusinessList = function(fn, pn, ps, searchWord, searchStatus){
 		var sou = "";
 		if(searchWord!=undefined && searchWord.length>0){
@@ -368,6 +389,19 @@ function showJLError(message){
 			}
 		}, false);
 	};
+	
+	AVRIL.queryReplyListByBid = function(fn, bid){
+		if(bid==undefined || bid.length==0){
+			showJLError("缺少商机参数");			
+			return;
+		}
+		myAjax("/reply?bId="+bid, "get", {}, function(data){			
+			if(fn){
+				fn(data);
+			}
+		}, false);
+	}
+	
 	
 	/**
 	 * 

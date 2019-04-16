@@ -29,17 +29,10 @@ public class MailUtil {
 	private JavaMailSender mailSender;
 
 	@Value("${spring.profiles.active}")
-	private String ispass;
-
+	private String ispass;	
+	
+	@Value("${spring.mail.mailfrom}")
 	private String mailfrom;
-
-	public String getMailfrom() {
-		return mailfrom;
-	}
-
-	public void setMailfrom(String mailfrom) {
-		this.mailfrom = mailfrom;
-	}
 
 	@Autowired
 	private MailHistoryService mailHistoryService;
@@ -77,7 +70,7 @@ public class MailUtil {
 			MimeMessage mimeMessage = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 			
-			helper.setFrom("shangji@hnjing.com");
+			helper.setFrom(mailfrom);
 			mailto = mailto.trim().replaceAll("；", ";");
 			mailto = mailto.replaceAll("，", ";");
 			mailto = mailto.replaceAll(",", ";");

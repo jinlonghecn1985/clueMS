@@ -26,6 +26,7 @@ import com.hnjing.config.web.exception.ParameterException;
 import com.hnjing.core.controller.bo.BusinessBo;
 import com.hnjing.core.controller.bo.UserInfoBo;
 import com.hnjing.core.model.entity.BusinessInfo;
+import com.hnjing.core.model.entity.ClueInfo;
 import com.hnjing.core.service.BMSService;
 import com.hnjing.core.service.BusinessInfoService;
 import com.hnjing.core.service.ClueInfoService;
@@ -97,15 +98,35 @@ public class BusinessInfoController{
 	
 	@ApiOperation(value = "查询 根据商机信息标识查询商机信息信息", notes = "根据商机信息标识查询商机信息信息")
 	@RequestMapping(value = "/businessinfo/{bId:.+}", method = RequestMethod.GET)
-	public Object queryBusinessInfoById(HttpServletResponse response,
-			@PathVariable Integer bId) {
-		BusinessInfo businessInfo = businessInfoService.queryBusinessInfoByBId(bId);
+	public Object queryBusinessInfoById(HttpServletResponse response, HttpServletRequest request,
+			@PathVariable Integer bId, String sale) {
+		BusinessInfo businessInfo = null;
+		if(bId!=null && bId.intValue()==0 && sale!=null) {
+			businessInfo = businessInfoService.queryBusinessInfoBySaleToken(sale);
+			if(businessInfo!=null && businessInfo.getcPhone()!=null && businessInfo.getcPhone().length()>7) {
+				businessInfo.setcPhone(businessInfo.getcPhone().substring(0, 3)+"****"+businessInfo.getcPhone().substring(businessInfo.getcPhone().length()-4));
+			}else {
+				return "index.html";
+			}
+		}else {
+			UserInfoBo ui = new UserInfoBo(bmsService.getUserInfo(request));
+			if(ui.getUserInfo()==null) {
+				throw new AuthorityException("用户权限错误");
+			}
+			businessInfo = businessInfoService.queryBusinessInfoByBId(bId);
+		}		
 		if(null == businessInfo){
 			throw new NotFoundException("商机信息");
 		}
 		BusinessBo bb = new BusinessBo();
 		bb.setBusinessInfo(businessInfo);
-		bb.setClueInfo(clueInfoService.queryClueInfoByCId(businessInfo.getClueId()));
+		ClueInfo ci = clueInfoService.queryClueInfoByCId(businessInfo.getClueId());
+		if(bId.intValue()==0) {
+			if(ci!=null && ci.getCPhone()!=null && ci.getCPhone().length()>7) {
+				ci.setCPhone(ci.getCPhone().substring(0, 3)+"****"+ci.getCPhone().substring(ci.getCPhone().length()-4));
+			}
+		}
+		bb.setClueInfo(ci);
 		return bb;
 	}
 	

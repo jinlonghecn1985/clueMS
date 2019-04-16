@@ -74,5 +74,15 @@ public interface BusinessInfoService {
 	 List<BusinessInfoBo> queryBusinessInfoBoByProperty(Map<String, Object> map);
 	 
 	 HSSFWorkbook exportByProperty(Map<String, Object> map);
+
+	/** 
+	* @Title: queryBusinessInfoBySaleToken 
+	* @Description: 根据代码查询商机信息 
+	* @param saleToken
+	* @return  
+	* BusinessInfo    返回类型 
+	* @throws 
+	*/
+	BusinessInfo queryBusinessInfoBySaleToken(String saleToken);
 	 
 }
